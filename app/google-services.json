@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "590422380831",
+    "firebase_url": "https://jokegenerator-13008.firebaseio.com",
+    "project_id": "jokegenerator-13008",
+    "storage_bucket": "jokegenerator-13008.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:590422380831:android:46fe695625a40960afe02a",
+        "android_client_info": {
+          "package_name": "com.api.jokegenerator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "590422380831-18s0o1ro7qu7gl7c0j7jl84s4fph5gds.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaVsugyeVnXUYeFjRXAmdZPoz9COt-r7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "590422380831-18s0o1ro7qu7gl7c0j7jl84s4fph5gds.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
