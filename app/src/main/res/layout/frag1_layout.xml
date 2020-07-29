@@ -18,17 +18,18 @@
         android:textColor="#b30000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.418" />
+        app:layout_constraintVertical_bias="0.377" />
 
     <TextView
         android:id="@+id/punchlineText"
-        android:layout_width="344dp"
-        android:layout_height="69dp"
+        android:layout_width="338dp"
+        android:layout_height="97dp"
         android:autoSizeTextType="uniform"
-        android:textColor="#b30000"
         android:gravity="center"
+        android:textColor="#b30000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -40,7 +41,8 @@
         android:id="@+id/generateJokeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Genrate"
+        android:background="@drawable/circledrawable"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

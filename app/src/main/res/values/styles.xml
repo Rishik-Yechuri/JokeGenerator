@@ -7,4 +7,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.Launcher" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <!--<item name="colorPrimaryDark">@android:color/white</item>-->
+        <item name="android:windowBackground">@drawable/startupscreen</item>
+    </style>
+
 </resources>

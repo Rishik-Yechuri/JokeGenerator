@@ -38,6 +38,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class Frag1 extends Fragment {
     Button generateJokeButton;
@@ -55,6 +57,8 @@ public class Frag1 extends Fragment {
         generateJokeButton.setOnClickListener(new GenerateJokeListener());
         jokeQuestionText = view.findViewById(R.id.jokeQuestionText);
         punchlineText = view.findViewById(R.id.punchlineText);
+        jokeQuestionText.setText(getActivity().getSharedPreferences("_",MODE_PRIVATE).getString("setup","No Joke Yet"));
+        punchlineText.setText(getActivity().getSharedPreferences("_",MODE_PRIVATE).getString("delivery",""));
         return view;
     }
 
@@ -131,6 +135,8 @@ public class Frag1 extends Fragment {
                 try {
                     activity.jokeQuestionText.setText(jsonObject.getString("setup"));
                     activity.punchlineText.setText(jsonObject.getString("delivery"));
+                    activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("setup",jsonObject.getString("setup")).apply();
+                    activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("delivery",jsonObject.getString("delivery")).apply();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
