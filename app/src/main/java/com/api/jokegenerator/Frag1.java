@@ -358,7 +358,7 @@ public class Frag1 extends Fragment {
         }
     }
 
-    public /*Task<String>*/void checkIfJokeSavedFirebase() throws InterruptedException, ExecutionException {
+    public Task<String> checkIfJokeSavedFirebase() throws InterruptedException, ExecutionException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -405,6 +405,7 @@ public class Frag1 extends Fragment {
                         return jokeStored;
                     }
                 });
+         return null;
     }
 
     @Override
