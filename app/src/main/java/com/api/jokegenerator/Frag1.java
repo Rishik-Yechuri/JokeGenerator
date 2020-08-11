@@ -259,7 +259,8 @@ public class Frag1 extends Fragment {
 
     public void downloadJoke(View v) throws JSONException {
         //v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()),R.drawable.checkred));
-        String tempJoke = "Why did the chicken cross the road? I don't even know";
+        //String tempJoke = String.valueOf(jsonObject);
+        String tempJoke = "Why did the chicked cross the road?I don't even know";
         StorageReference whereToSaveJoke = FirebaseStorage.getInstance().getReference().child("storedjokes/" + jokeJSON.getString("id") + ".json");
         /*whereToSaveJoke.putFile(Uri.parse(String.valueOf(jsonObject)))*/
         whereToSaveJoke.putBytes(tempJoke.getBytes()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {

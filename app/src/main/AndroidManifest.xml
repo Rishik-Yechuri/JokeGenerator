@@ -13,7 +13,12 @@
         android:roundIcon="@drawable/laughicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".KotlinAwaittest"></activity>
+        <service
+            android:name=".FirebaseMessagingService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".KotlinAwaittest" />
         <activity android:name=".JokeScreen" />
         <activity android:name=".SignUp" />
         <activity
