@@ -41,6 +41,7 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -134,6 +135,13 @@ public class Frag1 extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }else{
+            try {
+                jokeJSON = new JSONObject();
+                jokeJSON.put("id","-1");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         jsonObject = jokeJSON;
         try {
@@ -161,82 +169,6 @@ public class Frag1 extends Fragment {
         }
     }
 
-
-    /*public void getJokeAndDisplay() throws IOException, JSONException {
-        List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
-        tasks.add(new CheckIfJokeSavedTask(false, 208));
-        Observable<CheckIfJokeSavedTask> taskObservable = Observable
-                .fromIterable(tasks)
-                .subscribeOn(Schedulers.io())
-                .filter(new Predicate<CheckIfJokeSavedTask>() {
-                    @Override
-                    public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
-                       *//* boolean isJokeSavedTemp = jokeSavedTask.checkIfStored();
-                        isJokeSaved = isJokeSavedTemp;*//*
-                        URL url = null;
-                        try {
-                            url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
-                            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                            InputStream inputStream = urlConnection.getInputStream();
-                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                            String finalJSON = "";
-                            String received = "";
-                            while (received != null) {
-                                received = bufferedReader.readLine();
-                                finalJSON += received;
-                            }
-
-                            Log.d("broke", "received:" + finalJSON);
-                            jsonObject = new JSONObject(finalJSON);
-                            type = jsonObject.getString("type");
-                        } catch (JSONException | IOException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            checkIfJokeSavedFirebase();
-
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d("finalattempt", "pre while");
-                        while (!backgroundTaskFinished) {
-                            Log.d("finalattempt", "in while");
-                            try {
-                                Thread.sleep(75);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        return true;
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread());
-        taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                Log.d("TAG", "on subscribe called");
-                disposables.add(d);
-            }
-
-            @Override
-            public void onNext(@io.reactivex.rxjava3.annotations.NonNull CheckIfJokeSavedTask jokeSavedTask) {
-
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.d("TAG", "onError: " + e);
-            }
-
-            @Override
-            public void onComplete() {
-                Log.d("TAG", "onComplete");
-
-            }
-        });
-        *//*getJoke task = new getJoke(Frag1.this);
-        task.execute();*//*
-    }*/
     public void getJokeAndDisplay() {
         //List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
         tasks.add(new CheckIfJokeSavedTask(false, 208));
@@ -381,123 +313,6 @@ public class Frag1 extends Fragment {
             }
         });
     }
-
-    /*private static class getJoke extends AsyncTask<Integer, Integer, String> {
-        WeakReference<Frag1> activityWeakReference;
-        String type = "";
-        boolean jokeSaved = false;
-
-        getJoke(Frag1 activity) {
-            activityWeakReference = new WeakReference<Frag1>(activity);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Frag1 activity = activityWeakReference.get();
-        }
-
-        @Override
-        protected String doInBackground(Integer... integers) {
-            Frag1 activity = activityWeakReference.get();
-            URL url = null;
-            try {
-                url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = urlConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String finalJSON = "";
-                String received = "";
-                while (received != null) {
-                    received = bufferedReader.readLine();
-                    finalJSON += received;
-                }
-
-                Log.d("broke", "received:" + finalJSON);
-                activity.jsonObject = new JSONObject(finalJSON);
-                type = activity.jsonObject.getString("type");
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                activity.checkIfJokeSavedFirebase();
-
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-            }
-            Log.d("finalattempt", "pre while");
-            while (!activity.backgroundTaskFinished) {
-                Log.d("finalattempt", "in while");
-                try {
-                    Thread.sleep(75);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return "done";
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Frag1 activity = activityWeakReference.get();
-            if (type.equals("single")) {
-                try {
-                    activity.jokeQuestionText.setText(activity.jsonObject.getString("joke"));
-                    activity.punchlineText.setText("");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else if (type.equals("twopart")) {
-                try {
-                    activity.jokeQuestionText.setText(activity.jsonObject.getString("setup"));
-                    activity.punchlineText.setText(activity.jsonObject.getString("delivery"));
-                    //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("setup", jsonObject.getString("setup")).apply();
-                    //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("delivery", jsonObject.getString("delivery")).apply();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            Log.d("runtimeexception", "pre jokesaved check");
-
-            if (jokeSaved) {
-                Log.d("runtimeexception", "it is saved");
-                activity.downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(activity.getActivity()), R.drawable.checkred));
-            } else {
-                Log.d("runtimeexception", "not saved");
-                activity.downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(activity.getActivity()), R.drawable.downloadicon));
-            }
-            String jokeJSON = activity.jsonObject.toString();
-            try {
-                activity.jokeJSON = new JSONObject(jokeJSON);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", jokeJSON).apply();
-        }
-    }*/
-
-    class SaveJoke extends AsyncTask<Integer, Void, String> {
-        private WeakReference<Frag1> imageViewReference;
-        private int data = 0;
-
-        SaveJoke(Frag1 activity) {
-            // Use a WeakReference to ensure the ImageView can be garbage collected
-        }
-
-        // Decode image in background.
-        @Override
-        protected String doInBackground(Integer... params) {
-            return "done";
-        }
-
-        // Once complete, see if ImageView is still around and set bitmap.
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-        }
-    }
-
     public void checkIfJokeSavedFirebase() throws JSONException {
         List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
         tasks.add(new CheckIfJokeSavedTask(false, jsonObject.getInt("id")));
@@ -541,7 +356,10 @@ public class Frag1 extends Fragment {
                 } else {
                     downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
                 }
-                //downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+                /*JSONArray tempARRAYJSON = new JSONArray();
+                JSONObject tempObject = new JSONObject();
+                tempARRAYJSON.put(tempObject);
+                getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", String.valueOf(tempARRAYJSON)).apply();*/
             }
         });
     }
