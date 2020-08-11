@@ -80,6 +80,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class Frag1 extends Fragment {
     //GitHub Test
+    boolean backgroundTaskFinished = false;
     private CompositeDisposable disposables = new CompositeDisposable();
     JSONObject jsonObject;
     Button generateJokeButton;
@@ -88,6 +89,15 @@ public class Frag1 extends Fragment {
     TextView punchlineText;
     FirebaseAuth mAuth;
     int endNumber;
+
+
+    //Only for rxJava
+    String type = "";
+    boolean jokeSaved = false;
+    List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+    //
+
+
     //Context context;
     ArrayList<String> playerNames;
     ArrayList<Button> holdButtons;
@@ -125,6 +135,12 @@ public class Frag1 extends Fragment {
                 e.printStackTrace();
             }
         }
+        jsonObject = jokeJSON;
+        try {
+            checkIfJokeSavedFirebase();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         /*jokeQuestionText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("setup", "No Joke Yet"));
         punchlineText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("delivery", ""));*/
         return view;
@@ -134,11 +150,7 @@ public class Frag1 extends Fragment {
         @Override
         public void onClick(View v) {
             if (v.getId() == R.id.generateJokeButton) {
-                try {
-                    getJokeAndDisplay();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
+                getJokeAndDisplay();
             } else if (v.getId() == R.id.downloadButton) {
                 try {
                     downloadJoke(v);
@@ -150,9 +162,167 @@ public class Frag1 extends Fragment {
     }
 
 
-    public void getJokeAndDisplay() throws IOException, JSONException {
-        getJoke task = new getJoke(Frag1.this);
-        task.execute();
+    /*public void getJokeAndDisplay() throws IOException, JSONException {
+        List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+        tasks.add(new CheckIfJokeSavedTask(false, 208));
+        Observable<CheckIfJokeSavedTask> taskObservable = Observable
+                .fromIterable(tasks)
+                .subscribeOn(Schedulers.io())
+                .filter(new Predicate<CheckIfJokeSavedTask>() {
+                    @Override
+                    public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
+                       *//* boolean isJokeSavedTemp = jokeSavedTask.checkIfStored();
+                        isJokeSaved = isJokeSavedTemp;*//*
+                        URL url = null;
+                        try {
+                            url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
+                            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                            InputStream inputStream = urlConnection.getInputStream();
+                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                            String finalJSON = "";
+                            String received = "";
+                            while (received != null) {
+                                received = bufferedReader.readLine();
+                                finalJSON += received;
+                            }
+
+                            Log.d("broke", "received:" + finalJSON);
+                            jsonObject = new JSONObject(finalJSON);
+                            type = jsonObject.getString("type");
+                        } catch (JSONException | IOException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            checkIfJokeSavedFirebase();
+
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d("finalattempt", "pre while");
+                        while (!backgroundTaskFinished) {
+                            Log.d("finalattempt", "in while");
+                            try {
+                                Thread.sleep(75);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return true;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread());
+        taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                Log.d("TAG", "on subscribe called");
+                disposables.add(d);
+            }
+
+            @Override
+            public void onNext(@io.reactivex.rxjava3.annotations.NonNull CheckIfJokeSavedTask jokeSavedTask) {
+
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("TAG", "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("TAG", "onComplete");
+
+            }
+        });
+        *//*getJoke task = new getJoke(Frag1.this);
+        task.execute();*//*
+    }*/
+    public void getJokeAndDisplay() {
+        //List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+        tasks.add(new CheckIfJokeSavedTask(false, 208));
+        Observable<CheckIfJokeSavedTask> taskObservable = Observable
+                .fromIterable(tasks)
+                .subscribeOn(Schedulers.io())
+                .filter(new Predicate<CheckIfJokeSavedTask>() {
+                    @Override
+                    public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
+                        Log.d("rxjavaflow", "Pre API call");
+                        URL url = null;
+                        try {
+                            url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
+                            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                            InputStream inputStream = urlConnection.getInputStream();
+                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                            String finalJSON = "";
+                            String received = "";
+                            while (received != null) {
+                                received = bufferedReader.readLine();
+                                finalJSON += received;
+                            }
+
+                            Log.d("broke", "received:" + finalJSON);
+                            jsonObject = new JSONObject(finalJSON);
+                            type = jsonObject.getString("type");
+                        } catch (JSONException | IOException e) {
+                            e.printStackTrace();
+                        }
+                        //checkIfJokeSavedFirebase();
+                        return true;
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread());
+        taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                Log.d("TAG", "on subscribe called");
+                disposables.add(d);
+            }
+
+            @Override
+            public void onNext(@io.reactivex.rxjava3.annotations.NonNull CheckIfJokeSavedTask jokeSavedTask) {
+
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("TAG", "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("rxjavaflow", "on Complete");
+                if (type.equals("single")) {
+                    try {
+                        jokeQuestionText.setText(jsonObject.getString("joke"));
+                        punchlineText.setText("");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else if (type.equals("twopart")) {
+                    try {
+                        jokeQuestionText.setText(jsonObject.getString("setup"));
+                        punchlineText.setText(jsonObject.getString("delivery"));
+                        //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("setup", jsonObject.getString("setup")).apply();
+                        //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("delivery", jsonObject.getString("delivery")).apply();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    Log.d("somethingbrokedebug","pre check");
+                    checkIfJokeSavedFirebase();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                String jokeJSONTemp = jsonObject.toString();
+                try {
+                    jokeJSON = new JSONObject(jokeJSONTemp);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", jokeJSONTemp).apply();
+            }
+        });
     }
 
     public void downloadJoke(View v) throws JSONException {
@@ -171,7 +341,6 @@ public class Frag1 extends Fragment {
                 Toast.makeText(getActivity(), "Joke Failed:" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        StorageReference blockHot = FirebaseStorage.getInstance().getReference().child("storedjokes/");
         List<ListAllTask> tasks = new ArrayList<>();
         tasks.add(new ListAllTask(false, jokeJSON));
         Observable<ListAllTask> taskObservable = Observable
@@ -181,8 +350,6 @@ public class Frag1 extends Fragment {
                     @Override
                     public boolean test(ListAllTask listAllTask) throws Throwable {
                         listAllTask.storeJoke();
-                        Log.d("BAG", "SetBackground");
-                        //v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                         return true;
                     }
                 })
@@ -213,17 +380,9 @@ public class Frag1 extends Fragment {
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
             }
         });
-        //jokes = blockHot.listAll();
-       /* ArrayList<String> storeJokes = new ArrayList<>();
-        Log.d("TAG","Pre getResult:" + jokes);
-        for(StorageReference reference:jokes.getResult().getItems()){
-            Task<Uri> url = reference.getDownloadUrl();
-            storeJokes.add(String.valueOf(url));
-        }
-        v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()),R.drawable.checkred));*/
     }
 
-    private static class getJoke extends AsyncTask<Integer, Integer, String> {
+    /*private static class getJoke extends AsyncTask<Integer, Integer, String> {
         WeakReference<Frag1> activityWeakReference;
         String type = "";
         boolean jokeSaved = false;
@@ -260,41 +419,21 @@ public class Frag1 extends Fragment {
             } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
-            /*jokeSaved = Boolean.parseBoolean(checkIfJokeSavedFirebase().addOnCompleteListener(new OnCompleteListener<String>() {
-                @Override
-                public void onComplete(@NonNull Task<String> task) {
-                public void onComplete(@NonNull Task<String> task) {
-                    return task;
-                }
-            }));*/
             try {
-                Log.d("runtimeexception", "pre checkSavedCall");
-              activity.checkIfJokeSavedFirebase()
-                        .addOnCompleteListener(new OnCompleteListener<String>() {
-                            @Override
-                            public void onComplete(@NonNull Task<String> task) {
-                                jokeSaved = Boolean.parseBoolean(task.getResult());
-                                String synchronizedChannel = "displaysaved";
-                                synchronized (synchronizedChannel) {
-                                    Log.d("longdebug", "pre notify");
-                                    synchronizedChannel.notifyAll();
-                                }
-                            }
-                        });
+                activity.checkIfJokeSavedFirebase();
 
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
-            String synchronizedChannel = "displaysaved";
-           synchronized (synchronizedChannel) {
+            Log.d("finalattempt", "pre while");
+            while (!activity.backgroundTaskFinished) {
+                Log.d("finalattempt", "in while");
                 try {
-                    Log.d("longdebug", "pre wait");
-                    synchronizedChannel.wait();
+                    Thread.sleep(75);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            Log.d("longdebug", "background done");
             return "done";
         }
 
@@ -336,7 +475,7 @@ public class Frag1 extends Fragment {
             }
             activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", jokeJSON).apply();
         }
-    }
+    }*/
 
     class SaveJoke extends AsyncTask<Integer, Void, String> {
         private WeakReference<Frag1> imageViewReference;
@@ -359,54 +498,52 @@ public class Frag1 extends Fragment {
         }
     }
 
-    public Task<String> checkIfJokeSavedFirebase() throws InterruptedException, ExecutionException {
-        final String[] idToken = {""};
-        Map<String, Object> data = new HashMap<>();
-        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-        mUser.getIdToken(true)
-                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                    public void onComplete(@NonNull Task<GetTokenResult> task) {
-                        if (task.isSuccessful()) {
-                            idToken[0] = task.getResult().getToken();
-                            data.put("token", idToken[0]);
-                            String someObject = "test";
-                            synchronized (someObject) {
-                                Log.d("longdebug", "someObject pre notify");
-                                someObject.notify();
-                            }
-                            //notify();
-                            // Send token to your backend via HTTPS
-                            // ...
-                        } else {
-                            // Handle error -> task.getException();
-                        }
-                    }
-                });
-        String someObject = "test";
-        synchronized (someObject) {
-            Log.d("longdebug", "someObject pre wait");
-            someObject.wait();
-        }
-        Log.d("longdebug", "someObject post wait");
-        Log.d("runtimeexception", "pre actually called");
-        data.put("token", idToken[0]);
-        //data.put("jokeid",jokeJSON.getString("id"));
-        Log.d("longdebug", "pre firebase call");
-         FirebaseFunctions.getInstance()
-                .getHttpsCallable("checkIfJokeSaved")
-                .call(data)
-                .continueWith(new Continuation<HttpsCallableResult, String>() {
+    public void checkIfJokeSavedFirebase() throws JSONException {
+        List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+        tasks.add(new CheckIfJokeSavedTask(false, jsonObject.getInt("id")));
+        Log.d("somethingbrokedebug","pre Observable");
+        Observable<CheckIfJokeSavedTask> taskObservable = Observable
+                .fromIterable(tasks)
+                .subscribeOn(Schedulers.io())
+                .filter(new Predicate<CheckIfJokeSavedTask>() {
                     @Override
-                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        Log.d("runtimeexception", ".then");
-                        HashMap result = (HashMap) task.getResult().getData();
-                        JSONObject res = new JSONObject(result);
-                        String jokeStored = res.getString("jokeStored");
-                        Log.d("longdebug", "Firebase function returned");
-                        return jokeStored;
+                    public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
+                        Log.d("somethingbrokedebug","In test");
+                        jokeSaved = jokeSavedTask.checkIfStored();
+                        Log.d("somethingbrokedebug","jokeSaved:" + jokeSaved);
+                        //downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+                        return true;
                     }
-                });
-         return null;
+                })
+                .observeOn(AndroidSchedulers.mainThread());
+        taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                Log.d("TAG", "on subscribe called");
+                disposables.add(d);
+            }
+
+            @Override
+            public void onNext(@io.reactivex.rxjava3.annotations.NonNull CheckIfJokeSavedTask jokeSavedTask) {
+
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Log.d("TAG", "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d("checkerdebug", "value of jokeSaved:" + jokeSaved);
+                if (jokeSaved) {
+                    downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+                } else {
+                    downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
+                }
+                //downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+            }
+        });
     }
 
     @Override

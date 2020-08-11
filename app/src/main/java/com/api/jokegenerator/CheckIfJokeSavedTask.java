@@ -12,8 +12,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
-import com.google.firebase.storage.ListResult;
-import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,28 +19,26 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ListAllTask {
+public class CheckIfJokeSavedTask {
     private boolean isComplete;
-    private String id;
-    private JSONObject jokeJSON = null;
-    private Task<ListResult> holdReturnedJokes;
-
-    public ListAllTask(boolean isComplete,JSONObject jokeJSON) {
+    private boolean isStored;
+    private int jokeID;
+    final String commonObject = "taskobject";
+    public CheckIfJokeSavedTask(boolean isComplete, int jokeID) {
         this.isComplete = isComplete;
-        //this.id = id;
-        this.jokeJSON = jokeJSON;
+        this.jokeID = jokeID;
     }
-   public void storeJoke() throws JSONException {
-        saveJokeIDFirebase();
-   }
-    public boolean isComplete() {
-        return isComplete;
+
+    public boolean checkIfStored() throws JSONException, InterruptedException {
+        Log.d("somethingbrokedebug","In check if stored");
+        checkIfStoredFirebase();
+        synchronized (commonObject) {
+            commonObject.wait();
+        }
+        return isStored;
     }
-    public Task<ListResult> getJokes(){
-        Log.d("TAG","holdReturnedJokes sent:" + holdReturnedJokes);
-        return holdReturnedJokes;
-    }
-    public void saveJokeIDFirebase() throws JSONException {
+
+    public void checkIfStoredFirebase() throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -50,37 +46,36 @@ public class ListAllTask {
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d("tokencheck","task.getToken:" + task.getResult().getToken());
                             idToken[0] = task.getResult().getToken();
-                            Log.d("tokencheck","idToken[0]" + task.getResult().getToken());
-                            // Send token to your backend via HTTPS
                             data.put("token", idToken[0]);
-                            Log.d("tokencheck","token value:" + idToken[0]);
-                            try {
-                                data.put("jokeid",jokeJSON.getString("id"));
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            data.put("jokeid",jokeID);
                             FirebaseFunctions.getInstance()
-                                    .getHttpsCallable("saveJokeID")
+                                    .getHttpsCallable("checkIfJokeSaved")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
                                         @Override
                                         public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
                                             HashMap result = (HashMap) task.getResult().getData();
                                             JSONObject res = new JSONObject(result);
-                                            //String message = res.getString("gameID");
-                                            Log.d("serverresult","gameID: none");
-                                            //openShowCode(message);
+                                            boolean isStoredTemp = Boolean.parseBoolean(res.getString("jokeStored"));
+                                            Log.d("finalthing","isStoredTemp:" + isStoredTemp);
+                                            isStored = isStoredTemp;
+                                            Log.d("somethingbrokedebug","isStored:" + isStored);
+                                            synchronized (commonObject) {
+                                                commonObject.notify();
+                                            }
                                             return null;
                                         }
                                     });
                             // ...
                         } else {
-                            Log.d("tokencheck","task is not successful");
-                            // Handle error -> task.getException();
+                            Log.d("tokencheck", "task is not successful");
+                            synchronized (commonObject) {
+                                commonObject.notify();
+                            }
                         }
                     }
                 });
+        Log.d("checkerdebug","pre notify");
     }
 }
