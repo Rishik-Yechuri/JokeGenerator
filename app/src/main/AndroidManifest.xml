@@ -14,11 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".FirebaseMessagingService"
+            android:name=".MyFirebaseMessagingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"
+            android:stopWithTask="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
-        <activity android:name=".KotlinAwaittest" />
         <activity android:name=".JokeScreen" />
         <activity android:name=".SignUp" />
         <activity

@@ -1,5 +1,7 @@
 package com.api.jokegenerator;
 
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -13,7 +15,7 @@ import org.json.JSONObject;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
+public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onNewToken(String s) {
