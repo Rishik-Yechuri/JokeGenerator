@@ -1,5 +1,6 @@
 package com.api.jokegenerator;
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -32,8 +33,8 @@ public class ListAllTask {
         //this.id = id;
         this.jokeJSON = jokeJSON;
     }
-   public void storeJoke() throws JSONException {
-        saveJokeIDFirebase();
+   public void storeJoke(Context context) throws JSONException {
+        saveJokeIDFirebase(context);
    }
     public boolean isComplete() {
         return isComplete;
@@ -42,7 +43,7 @@ public class ListAllTask {
         Log.d("TAG","holdReturnedJokes sent:" + holdReturnedJokes);
         return holdReturnedJokes;
     }
-    public void saveJokeIDFirebase() throws JSONException {
+    public void saveJokeIDFirebase(Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -55,6 +56,8 @@ public class ListAllTask {
                             Log.d("tokencheck","idToken[0]" + task.getResult().getToken());
                             // Send token to your backend via HTTPS
                             data.put("token", idToken[0]);
+                            data.put("fcmtoken",MyFirebaseMessagingService.getToken(context));
+                            data.put("jokejson",jokeJSON);
                             Log.d("tokencheck","token value:" + idToken[0]);
                             try {
                                 data.put("jokeid",jokeJSON.getString("id"));

@@ -258,12 +258,11 @@ public class Frag1 extends Fragment {
     }
 
     public void downloadJoke(View v) throws JSONException {
-        //v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()),R.drawable.checkred));
-        //String tempJoke = String.valueOf(jsonObject);
-        String tempJoke = "Why did the chicked cross the road?I don't even know";
+        String tempJoke = String.valueOf(jsonObject);
+        /*String tempJoke = "Why did the chicked cross the road?I don't even know";*/
         StorageReference whereToSaveJoke = FirebaseStorage.getInstance().getReference().child("storedjokes/" + jokeJSON.getString("id") + ".json");
         /*whereToSaveJoke.putFile(Uri.parse(String.valueOf(jsonObject)))*/
-        whereToSaveJoke.putBytes(tempJoke.getBytes()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        /*whereToSaveJoke.putBytes(tempJoke.getBytes()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
@@ -273,7 +272,7 @@ public class Frag1 extends Fragment {
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), "Joke Failed:" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
         List<ListAllTask> tasks = new ArrayList<>();
         tasks.add(new ListAllTask(false, jokeJSON));
         Observable<ListAllTask> taskObservable = Observable
@@ -282,7 +281,7 @@ public class Frag1 extends Fragment {
                 .filter(new Predicate<ListAllTask>() {
                     @Override
                     public boolean test(ListAllTask listAllTask) throws Throwable {
-                        listAllTask.storeJoke();
+                        listAllTask.storeJoke(getContext());
                         return true;
                     }
                 })
@@ -311,6 +310,7 @@ public class Frag1 extends Fragment {
             public void onComplete() {
                 Log.d("TAG", "onComplete");
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+                Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
             }
         });
     }

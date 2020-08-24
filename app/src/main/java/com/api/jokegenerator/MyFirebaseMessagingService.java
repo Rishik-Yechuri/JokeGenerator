@@ -20,13 +20,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
+        Log.d("storagenotification","newToken");
         getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply();
     }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO(developer): Handle FCM messages here.
-        if (remoteMessage.getData().get("purpose").equals("savejoke")) {
+        if (/*remoteMessage.getData().get("purpose").equals("savejoke")*/true) {
+            Log.d("storagenotification","Bois we got em");
+            Log.d("storagenotification","fakedata:" + remoteMessage.getData().get("type"));
             try {
                 StoreJokesLocally.saveJoke((JSONObject) remoteMessage.getData(), getApplicationContext());
             } catch (JSONException e) {
