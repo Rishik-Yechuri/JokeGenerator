@@ -1,7 +1,10 @@
 package com.api.jokegenerator;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -135,10 +138,10 @@ public class Frag1 extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             try {
                 jokeJSON = new JSONObject();
-                jokeJSON.put("id","-1");
+                jokeJSON.put("id", "-1");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -161,7 +164,12 @@ public class Frag1 extends Fragment {
                 getJokeAndDisplay();
             } else if (v.getId() == R.id.downloadButton) {
                 try {
-                    downloadJoke(v);
+                    if (jokeSaved) {
+                        ConfirmToUnSave(getActivity());
+                    } else {
+                        downloadJoke(v);
+                    }
+                    //downloadJoke(v);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -241,7 +249,7 @@ public class Frag1 extends Fragment {
                     }
                 }
                 try {
-                    Log.d("somethingbrokedebug","pre check");
+                    Log.d("somethingbrokedebug", "pre check");
                     checkIfJokeSavedFirebase();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -259,20 +267,7 @@ public class Frag1 extends Fragment {
 
     public void downloadJoke(View v) throws JSONException {
         String tempJoke = String.valueOf(jsonObject);
-        /*String tempJoke = "Why did the chicked cross the road?I don't even know";*/
         StorageReference whereToSaveJoke = FirebaseStorage.getInstance().getReference().child("storedjokes/" + jokeJSON.getString("id") + ".json");
-        /*whereToSaveJoke.putFile(Uri.parse(String.valueOf(jsonObject)))*/
-        /*whereToSaveJoke.putBytes(tempJoke.getBytes()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getActivity(), "Joke Failed:" + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });*/
         List<ListAllTask> tasks = new ArrayList<>();
         tasks.add(new ListAllTask(false, jokeJSON));
         Observable<ListAllTask> taskObservable = Observable
@@ -311,22 +306,85 @@ public class Frag1 extends Fragment {
                 Log.d("TAG", "onComplete");
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                 Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
+                jokeSaved = true;
             }
         });
+    }
+
+    public void deleteJoke()  {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+        .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d("gooff","task successful");
+                    idToken[0] = task.getResult().getToken();
+                    data.put("token", idToken[0]);
+                    data.put("fcmtoken",MyFirebaseMessagingService.getToken(getActivity()));
+                    try {
+                        data.put("jokeid",jokeJSON.getString("id"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    FirebaseFunctions.getInstance()
+                            .getHttpsCallable("deleteJoke")
+                            .call(data)
+                            .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                @Override
+                                public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                    Log.d("gooff",".then");
+                                    //HashMap result = (HashMap) task.getResult().getData();
+                                    //JSONObject res = new JSONObject(result);
+                                    Log.d("gooff","set");
+                                    downloadButton.setBackgroundResource(R.drawable.downloadicon);
+                                    jokeSaved = false;
+                                    Log.d("gooff","set really");
+                                    return null;
+                                }
+                            });
+                    // ...
+                } else {
+                }
+            }
+        });
+    }
+    public void ConfirmToUnSave(Context context) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+        //AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        //builder.setTitle(R.string.app_name);
+        builder.setMessage("Do you want to unsave this joke?");
+        //builder.setIcon(R.drawable.ic_launcher);
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+                Log.d("gooff","pre delete");
+                deleteJoke();
+                //Unsave Joke With Firebase
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
     public void checkIfJokeSavedFirebase() throws JSONException {
         List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
         tasks.add(new CheckIfJokeSavedTask(false, jsonObject.getInt("id")));
-        Log.d("somethingbrokedebug","pre Observable");
+        Log.d("somethingbrokedebug", "pre Observable");
         Observable<CheckIfJokeSavedTask> taskObservable = Observable
                 .fromIterable(tasks)
                 .subscribeOn(Schedulers.io())
                 .filter(new Predicate<CheckIfJokeSavedTask>() {
                     @Override
                     public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
-                        Log.d("somethingbrokedebug","In test");
+                        Log.d("somethingbrokedebug", "In test");
                         jokeSaved = jokeSavedTask.checkIfStored();
-                        Log.d("somethingbrokedebug","jokeSaved:" + jokeSaved);
+                        Log.d("somethingbrokedebug", "jokeSaved:" + jokeSaved);
                         //downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                         return true;
                     }
@@ -364,7 +422,6 @@ public class Frag1 extends Fragment {
             }
         });
     }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
