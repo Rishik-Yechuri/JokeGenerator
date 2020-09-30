@@ -148,7 +148,8 @@ public class Frag1 extends Fragment {
         }
         jsonObject = jokeJSON;
         try {
-            checkIfJokeSavedFirebase();
+            //checkIfJokeSavedFirebase();
+            checkIfJokeSaved();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -421,6 +422,15 @@ public class Frag1 extends Fragment {
                 getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", String.valueOf(tempARRAYJSON)).apply();*/
             }
         });
+    }
+    public void checkIfJokeSaved() throws JSONException {
+        if(StoreJokesLocally.checkIfJokeSaved(jsonObject.getString("id"),getActivity())){
+            Log.d("finalsprint","check");
+            downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+        }else{
+            Log.d("finalsprint","download");
+            downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
+        }
     }
     @Override
     public void onDestroy() {

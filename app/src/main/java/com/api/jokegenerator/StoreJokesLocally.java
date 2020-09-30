@@ -62,15 +62,19 @@ public class StoreJokesLocally {
             x++;
         }
         context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localjokes", String.valueOf(jokeList)).apply();
+        context.getSharedPreferences("_",MODE_PRIVATE).edit().putString("localids", String.valueOf(idJSON)).apply();
         Log.d("taste", "Whole thing:" + context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", ""));
     }
 
     public static boolean checkIfJokeSaved(String jokeID, Context context) throws JSONException {
+        Log.d("localchecks","Checking if saved");
         String JSONIdsString = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");
-        JSONObject JSONIds;
-        if (JSONIdsString != "") {
+        JSONObject JSONIds = null;
+        if (!JSONIdsString.equals("")) {
+            Log.d("localchecks","If:" + JSONIdsString);
              JSONIds = new JSONObject(JSONIdsString);
         }else{
+            Log.d("localchecks","else");
             return false;
         }
         return JSONIds.getString(jokeID).equals("true");
