@@ -426,6 +426,7 @@ public class Frag1 extends Fragment {
     public void checkIfJokeSaved() throws JSONException {
         if(StoreJokesLocally.checkIfJokeSaved(jsonObject.getString("id"),getActivity())){
             Log.d("finalsprint","check");
+            jokeSaved = true;
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
         }else{
             Log.d("finalsprint","download");
