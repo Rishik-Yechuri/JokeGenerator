@@ -86,49 +86,61 @@ import static android.content.Context.MODE_PRIVATE;
 
 
 public class Frag1 extends Fragment {
-    //GitHub Test
-    boolean backgroundTaskFinished = false;
+    //boolean backgroundTaskFinished = false;
+
+    //Used for Tasks and RxJava. It is cleared when activity is destroyed
     private CompositeDisposable disposables = new CompositeDisposable();
+
+    //Current Joke saved in here
     JSONObject jsonObject;
+
+    //Declare mAuth which will be used for authentication
+    FirebaseAuth mAuth;
+
+    //Declare values for Views
     Button generateJokeButton;
     Button downloadButton;
     TextView jokeQuestionText;
     TextView punchlineText;
-    FirebaseAuth mAuth;
-    int endNumber;
-
 
     //Only for rxJava
     String type = "";
     boolean jokeSaved = false;
     List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+
     //Declare Broadcast receiver things
     BroadcastReceiver _updateJokes;
 
-    //Context context;
-    ArrayList<String> playerNames;
-    ArrayList<Button> holdButtons;
-    ArrayList<Button> holdButtons2;
+    //jokeJSON stores current joke
     Task<ListResult> jokes;
     JSONObject jokeJSON = null;
-    boolean isJokeSaved;
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag1_layout, container, false);
+        //Initialize Views
         generateJokeButton = view.findViewById(R.id.generateJokeButton);
-        generateJokeButton.setOnClickListener(new GenerateJokeListener());
         jokeQuestionText = view.findViewById(R.id.jokeQuestionText);
         punchlineText = view.findViewById(R.id.punchlineText);
         downloadButton = view.findViewById(R.id.downloadButton);
+
+        //Set Listeners for Buttons
+        generateJokeButton.setOnClickListener(new GenerateJokeListener());
         downloadButton.setOnClickListener(new GenerateJokeListener());
+
+        //Initialize mAuth, which is used for authentication
         mAuth = FirebaseAuth.getInstance();
+
         //context = getActivity();
+
         try {
+            //update jokeJSON from shared preferences
             jokeJSON = new JSONObject(Objects.requireNonNull(((Objects.requireNonNull(getActivity()))).getSharedPreferences("_", MODE_PRIVATE).getString("joke", "")));
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        //if jokeJSON is not null,update the TextViews on screen
         if (jokeJSON != null) {
             try {
                 if (jokeJSON.getString("type").equals("single")) {
@@ -142,6 +154,7 @@ public class Frag1 extends Fragment {
                 e.printStackTrace();
             }
         } else {
+            //Otherwise,set joke id to "-1"(indicating there is no joke)
             try {
                 jokeJSON = new JSONObject();
                 jokeJSON.put("id", "-1");
@@ -149,6 +162,8 @@ public class Frag1 extends Fragment {
                 e.printStackTrace();
             }
         }
+
+        //jsonObject is updated to be equal to jokeJSON(there should only be one object to store current joke, but for now there are two objects)
         jsonObject = jokeJSON;
         try {
             //checkIfJokeSavedFirebase();
@@ -156,27 +171,31 @@ public class Frag1 extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        //Start a broadcast receiver that receives messages anytime a joke is added or removed
         IntentFilter intentFilter = new IntentFilter("UPDATEJOKE");
         _updateJokes = new GetJokeUpdates();
         getActivity().registerReceiver(_updateJokes, intentFilter);
-        /*jokeQuestionText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("setup", "No Joke Yet"));
-        punchlineText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("delivery", ""));*/
+
         return view;
     }
 
+    //A OnClickListener for Buttons
     class GenerateJokeListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            //If "generate joke" button is pressed, new joke is displated
             if (v.getId() == R.id.generateJokeButton) {
                 getJokeAndDisplay();
-            } else if (v.getId() == R.id.downloadButton) {
+            }
+            //If download button is pressed,takes action depending on state(joke saved or not)
+            else if (v.getId() == R.id.downloadButton) {
                 try {
                     if (jokeSaved) {
                         ConfirmToUnSave(getActivity());
                     } else {
                         downloadJoke(v);
                     }
-                    //downloadJoke(v);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -184,31 +203,44 @@ public class Frag1 extends Fragment {
         }
     }
 
+    //Fetches joke from JokeAPI and updates the TextViews
     public void getJokeAndDisplay() {
         //List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
+
+        //A new Task is added(the task is irrelevant and only there so RxJava can run properly)
         tasks.add(new CheckIfJokeSavedTask(false, 208));
+
+        //A observable is created,and tasks are completed
         Observable<CheckIfJokeSavedTask> taskObservable = Observable
                 .fromIterable(tasks)
                 .subscribeOn(Schedulers.io())
                 .filter(new Predicate<CheckIfJokeSavedTask>() {
                     @Override
+                    //This is where API is called and joke is updated(joke saved in "jsonObject")
                     public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
                         Log.d("rxjavaflow", "Pre API call");
                         URL url = null;
                         try {
+                            //The URL(how the API is called) is set
                             url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
+                            //URL connection setup using URL
                             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                            //InputStream created
                             InputStream inputStream = urlConnection.getInputStream();
+                            //BufferedReader created so incoming data can be read
                             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                            //finalJSON is all the information from the server put together.It is a JSON but is saved as a String for now
                             String finalJSON = "";
+                            //received is a single line received from the server
                             String received = "";
+                            //Continues to add the received message from the server onto "finalJSON"
                             while (received != null) {
                                 received = bufferedReader.readLine();
                                 finalJSON += received;
                             }
-
-                            Log.d("broke", "received:" + finalJSON);
+                            //jsonObject is updated
                             jsonObject = new JSONObject(finalJSON);
+                            //type refers to whether the joke is a single line or two lines.This is used later to update the Views accordingly
                             type = jsonObject.getString("type");
                         } catch (JSONException | IOException e) {
                             e.printStackTrace();
@@ -218,10 +250,12 @@ public class Frag1 extends Fragment {
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread());
+
+        //Observe taskObservable
         taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
             @Override
             public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                Log.d("TAG", "on subscribe called");
+                //disposable is added to list of disposables, which is cleared when the activity is destroyed
                 disposables.add(d);
             }
 
@@ -237,9 +271,11 @@ public class Frag1 extends Fragment {
 
             @Override
             public void onComplete() {
-                Log.d("rxjavaflow", "on Complete");
+                /*Once the joke has been received and updated,TextViews for the joke are updated.
+                If the Joke is a single liner only one TextView is updated,otherwise both TextViews are updated.*/
                 if (type.equals("single")) {
                     try {
+                        //TextViews updated
                         jokeQuestionText.setText(jsonObject.getString("joke"));
                         punchlineText.setText("");
                     } catch (JSONException e) {
@@ -247,35 +283,38 @@ public class Frag1 extends Fragment {
                     }
                 } else if (type.equals("twopart")) {
                     try {
+                        //TextViews updated
                         jokeQuestionText.setText(jsonObject.getString("setup"));
                         punchlineText.setText(jsonObject.getString("delivery"));
-                        //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("setup", jsonObject.getString("setup")).apply();
-                        //activity.getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("delivery", jsonObject.getString("delivery")).apply();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
                 try {
-                    Log.d("somethingbrokedebug", "pre check");
+                    //Checks if the joke is saved using Firebase
                     checkIfJokeSavedFirebase();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                //jokeJSON value is updated to jsonObject value
                 String jokeJSONTemp = jsonObject.toString();
                 try {
                     jokeJSON = new JSONObject(jokeJSONTemp);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                //Joke is added to shared preferences
                 getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", jokeJSONTemp).apply();
             }
         });
     }
 
+    //Joke is saved to locally,and to firebase
     public void downloadJoke(View v) throws JSONException {
-        String tempJoke = String.valueOf(jsonObject);
-        StorageReference whereToSaveJoke = FirebaseStorage.getInstance().getReference().child("storedjokes/" + jokeJSON.getString("id") + ".json");
+        //Array of tasks created
         List<ListAllTask> tasks = new ArrayList<>();
+        //task added,with jokeJSON as the JSON parameter
         tasks.add(new ListAllTask(false, jokeJSON));
         Observable<ListAllTask> taskObservable = Observable
                 .fromIterable(tasks)
@@ -283,24 +322,24 @@ public class Frag1 extends Fragment {
                 .filter(new Predicate<ListAllTask>() {
                     @Override
                     public boolean test(ListAllTask listAllTask) throws Throwable {
+                        //storeJoke is called on the task(stores the joke)
                         listAllTask.storeJoke(getContext());
                         return true;
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread());
+
+        //Create an observer
         taskObservable.subscribe(new Observer<ListAllTask>() {
             @Override
             public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                Log.d("TAG", "on subscribe called");
+                //add disposable to list to be cleared when activity is destroyed
                 disposables.add(d);
             }
 
             @Override
             public void onNext(@io.reactivex.rxjava3.annotations.NonNull ListAllTask task) {
                 Log.d("TAG", "on next:" + Thread.currentThread().getName());
-                //Log.d("TAG", "onNext:" + task.getJokes());
-                //task.setList();
-                //jokes = task.getJokes();
             }
 
             @Override
@@ -310,7 +349,8 @@ public class Frag1 extends Fragment {
 
             @Override
             public void onComplete() {
-                Log.d("TAG", "onComplete");
+                /*Change download icon  to check to indicate the joke is saved.
+                Show toast to show joke is saved. Set jokeSaved to true*/
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                 Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
                 jokeSaved = true;
@@ -424,10 +464,6 @@ public class Frag1 extends Fragment {
                 } else {
                     downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
                 }
-                /*JSONArray tempARRAYJSON = new JSONArray();
-                JSONObject tempObject = new JSONObject();
-                tempARRAYJSON.put(tempObject);
-                getActivity().getSharedPreferences("_", MODE_PRIVATE).edit().putString("joke", String.valueOf(tempARRAYJSON)).apply();*/
             }
         });
     }
@@ -462,8 +498,6 @@ public class Frag1 extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         disposables.clear();
-        
         getActivity().unregisterReceiver(_updateJokes);
     }
-   //Merge works
 }
