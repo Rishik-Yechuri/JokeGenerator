@@ -29,6 +29,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO(developer): Handle FCM messages here.
         Log.d("amg","firebase got message");
+        Intent updateJokes = null;
         if (remoteMessage.getData().get("purpose").equals("savejoke")) {
             Log.d("amg","save joke");
             JSONObject jsonReceived = null;
@@ -44,6 +45,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            updateJokes = new Intent("UPDATEJOKE");
+            updateJokes.putExtra("instruction","save");
         } else if (remoteMessage.getData().get("purpose").equals("deletejoke")) {
             Log.d("amg","delete joke");
             String jokeIDToDelete = remoteMessage.getData().get("jokeid");
@@ -52,7 +55,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            updateJokes = new Intent("UPDATEJOKE");
+            updateJokes.putExtra("instruction","delete");
         }
+        sendBroadcast(updateJokes);
         Log.d("amg","end of message");
         Log.d("amg","value of jokes:" + getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).getString("localjokes",""));
     }

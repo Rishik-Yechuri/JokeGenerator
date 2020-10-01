@@ -1,8 +1,11 @@
 package com.api.jokegenerator;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -99,8 +102,8 @@ public class Frag1 extends Fragment {
     String type = "";
     boolean jokeSaved = false;
     List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
-    //
-
+    //Declare Broadcast receiver things
+    BroadcastReceiver _updateJokes;
 
     //Context context;
     ArrayList<String> playerNames;
@@ -153,6 +156,9 @@ public class Frag1 extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        IntentFilter intentFilter = new IntentFilter("UPDATEJOKE");
+        _updateJokes = new GetJokeUpdates();
+        getActivity().registerReceiver(_updateJokes,intentFilter);
         /*jokeQuestionText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("setup", "No Joke Yet"));
         punchlineText.setText(getActivity().getSharedPreferences("_", MODE_PRIVATE).getString("delivery", ""));*/
         return view;
@@ -433,9 +439,24 @@ public class Frag1 extends Fragment {
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
         }
     }
+    public class GetJokeUpdates extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //String message = intent.getExtras().getString("message");
+            String instruction = intent.getExtras().getString("instruction");
+            if(instruction.equals("delete")){
+                jokeSaved = false;
+                downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
+            }else{
+                jokeSaved = true;
+                downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+            }
+        }
+    }
     @Override
     public void onDestroy() {
         super.onDestroy();
         disposables.clear();
+        getActivity().unregisterReceiver(_updateJokes);
     }
 }
