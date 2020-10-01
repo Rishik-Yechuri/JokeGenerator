@@ -462,7 +462,7 @@ public class Frag1 extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         disposables.clear();
-
+        
         getActivity().unregisterReceiver(_updateJokes);
     }
    //Merge works
