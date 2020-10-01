@@ -368,5 +368,6 @@ public class Frag1 extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         disposables.clear();
-    }
+    }//hi
+    //please notice this
 }
