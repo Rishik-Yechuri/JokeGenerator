@@ -1,4 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#292424"
+    android:layout_gravity="top"
+    tools:context=".Frag2"
+    android:orientation="horizontal">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/top_coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top">
+        <!--<Space
+            android:layout_width="match_parent"
+            android:layout_height="50dp" />-->
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+</LinearLayout>
+<!--<?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,9 +29,8 @@
     android:layout_width="fill_parent"
     android:background="#292424"
     android:layout_height="fill_parent">
-    <!-- Header goes here -->
-
+    <!- Header goes here -->
     <!-- Body goes here -->
 
-</LinearLayout>
+<!--</LinearLayout>-->
 
