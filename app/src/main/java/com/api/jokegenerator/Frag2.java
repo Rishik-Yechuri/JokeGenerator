@@ -60,7 +60,7 @@ public class Frag2 extends Fragment {
         TextView snackText = view.findViewById(com.google.android.material.R.id.snackbar_text);
         snackText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         view.setBackgroundColor(Color.parseColor("#b30000"));
-        ((View)view).setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.circledrawable));
+        ((View)view).setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.circledrawable));
         view.setPadding(0, 0, 0, 0);
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) view.getLayoutParams();
         params.gravity = Gravity.CENTER_HORIZONTAL;

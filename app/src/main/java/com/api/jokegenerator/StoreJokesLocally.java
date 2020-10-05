@@ -16,6 +16,7 @@ public class StoreJokesLocally {
     }
 
     public static void saveJoke(JSONObject jokeToSave, Context context) throws JSONException {
+        Log.d("offlinecheck","Joke Saved offline");
         JSONArray tempJSONArray;
         String stringOfArray = context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", "");
         if (stringOfArray != "") {
@@ -26,12 +27,6 @@ public class StoreJokesLocally {
         //tempJSONArray = new JSONArray();
         //tempJSONArray.put(jokeToSave);
         tempJSONArray.put( jokeToSave);
-        Log.d("turnin", "tempJSONArray:" + tempJSONArray);
-        Log.d("turnin", "pre transform joke:" + jokeToSave);
-        //String tempTransform = jokeToSave.getString("id") + ":" + jokeToSave;
-        //Log.d("turnin", "pre jsonify string:" + tempTransform);
-        //jokeToSave = new JSONObject(tempTransform);
-        Log.d("turnin", "joke being saved:" + jokeToSave);
         context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localjokes", String.valueOf(tempJSONArray)).apply();
         String stringOfJSONObject = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");
         JSONObject tempJSONObject;
@@ -63,18 +58,14 @@ public class StoreJokesLocally {
         }
         context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localjokes", String.valueOf(jokeList)).apply();
         context.getSharedPreferences("_",MODE_PRIVATE).edit().putString("localids", String.valueOf(idJSON)).apply();
-        Log.d("taste", "Whole thing:" + context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", ""));
     }
 
     public static boolean checkIfJokeSaved(String jokeID, Context context) throws JSONException {
-        Log.d("localchecks","Checking if saved");
         String JSONIdsString = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");
         JSONObject JSONIds = null;
         if (!JSONIdsString.equals("")) {
-            Log.d("localchecks","If:" + JSONIdsString);
              JSONIds = new JSONObject(JSONIdsString);
         }else{
-            Log.d("localchecks","else");
             return false;
         }
         return JSONIds.getString(jokeID).equals("true");
