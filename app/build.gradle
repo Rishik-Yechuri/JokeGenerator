@@ -39,6 +39,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-functions:19.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'androidx.annotation:annotation:1.1.0'
     //implementation 'com.google.firebase:firebase-inappmessaging-display:19.1.0'
     testImplementation 'junit:junit:4.12'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.0'

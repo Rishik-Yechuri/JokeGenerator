@@ -72,7 +72,7 @@ public class StoreJokesLocally {
         JSONObject JSONIds = null;
         if (!JSONIdsString.equals("")) {
             Log.d("localchecks","If:" + JSONIdsString);
-             JSONIds = new JSONObject(JSONIdsString);
+            JSONIds = new JSONObject(JSONIdsString);
         }else{
             Log.d("localchecks","else");
             return false;
