@@ -70,4 +70,14 @@ public class StoreJokesLocally {
         }
         return JSONIds.getString(jokeID).equals("true");
     }
+    public static JSONArray returnSavedJokes(Context context) throws JSONException {
+        JSONArray tempJSONArray;
+        String stringOfArray = context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", "");
+        if (stringOfArray != "") {
+            tempJSONArray = new JSONArray(stringOfArray);
+        } else {
+            tempJSONArray = new JSONArray();
+        }
+        return tempJSONArray;
+    }
 }

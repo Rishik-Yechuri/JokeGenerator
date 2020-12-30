@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,9 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.Objects;
 
 public class Frag2 extends Fragment {
@@ -40,6 +44,14 @@ public class Frag2 extends Fragment {
         _updateJokes = new SyncUpdate();
         getActivity().registerReceiver(_updateJokes, intentFilter);
         coordinatorLayout = view.findViewById(R.id.coordinatorLayout);
+        //A JSON array that stores all the jokes,each of the jokes is a JSON.
+        JSONArray jokeList = new JSONArray();
+        try {
+             jokeList = StoreJokesLocally.returnSavedJokes(getActivity());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d("quicktest","jokeList:" + jokeList);
         return view;
     }
 
