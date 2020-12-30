@@ -64,6 +64,11 @@ public class ListAllTask {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            try {
+                                StoreJokesLocally.saveJoke(jokeJSON,context);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                             FirebaseFunctions.getInstance()
                                     .getHttpsCallable("saveJokeID")
                                     .call(data)

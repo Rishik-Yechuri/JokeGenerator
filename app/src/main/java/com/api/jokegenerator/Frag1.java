@@ -358,7 +358,8 @@ public class Frag1 extends Fragment {
         });
     }
 
-    public void deleteJoke() {
+    public void deleteJoke() throws JSONException {
+        StoreJokesLocally.deleteJoke(jokeJSON.getString("id"),getActivity());
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -408,7 +409,11 @@ public class Frag1 extends Fragment {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
                 Log.d("gooff", "pre delete");
-                deleteJoke();
+                try {
+                    deleteJoke();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 //Unsave Joke With Firebase
             }
         });
@@ -474,7 +479,7 @@ public class Frag1 extends Fragment {
             jokeSaved = true;
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
         } else {
-            Log.d("finalsprint", "download");
+            Log.d("finalsprint", "download2");
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
         }
     }
