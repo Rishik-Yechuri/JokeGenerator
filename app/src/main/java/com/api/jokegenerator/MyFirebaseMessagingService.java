@@ -28,7 +28,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO(developer): Handle FCM messages here.
-        Log.d("amg","firebase got message");
+        Log.d("onreceive","firebase");
         Intent updateJokes = null;
         if (remoteMessage.getData().get("purpose").equals("savejoke")) {
             Log.d("amg","save joke");
@@ -45,6 +45,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            Log.d("onreceive","firebase save");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","save");
         } else if (remoteMessage.getData().get("purpose").equals("deletejoke")) {
@@ -55,6 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            Log.d("onreceive","firebase delete");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","delete");
         }
