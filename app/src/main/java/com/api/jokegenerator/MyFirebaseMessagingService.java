@@ -48,6 +48,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d("onreceive","firebase save");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","save");
+            updateJokes.putExtra("actiontotake","sync");
         } else if (remoteMessage.getData().get("purpose").equals("deletejoke")) {
             Log.d("amg","delete joke");
             String jokeIDToDelete = remoteMessage.getData().get("jokeid");
@@ -59,6 +60,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d("onreceive","firebase delete");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","delete");
+            updateJokes.putExtra("actiontotake","sync");
         }
         sendBroadcast(updateJokes);
         Log.d("amg","end of message");

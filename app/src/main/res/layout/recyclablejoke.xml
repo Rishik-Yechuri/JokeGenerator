@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recyclableLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#292424"
+    android:orientation="vertical">
+    <Space
+        android:layout_height="15dp"
+        android:layout_width="match_parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Space
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="70dp" />
+        <TextView
+            android:id="@+id/JokeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryVariant"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:text="Why is diesel such a cool thing that people love?\nBecause its really good for the stonks" />
+        <Space
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="70dp" />
+    </LinearLayout>
+    <Space
+        android:layout_height="15dp"
+        android:layout_width="match_parent" />
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimarySubtle" />
+
+</LinearLayout>

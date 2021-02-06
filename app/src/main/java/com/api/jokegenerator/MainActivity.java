@@ -22,9 +22,15 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public class MainActivity extends AppCompatActivity {
     TextView signUpView;
@@ -33,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextPasswordLogIn;
     FirebaseAuth mAuth;
     FirebaseUser user;
+    Intent updateJokes;
+
+    private CompositeDisposable disposables = new CompositeDisposable();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             // User is signed in
+            try {
+                getSavedJokesFirebase();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Intent i = new Intent(MainActivity.this, JokeScreen.class);
             startActivity(i);
             finish();
@@ -80,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d("digitaldash","UID val:" + task.getResult().getToken());
                                         String topicToSubscribe = task.getResult().getToken().split("\\.")[0];
                                         FirebaseMessaging.getInstance().subscribeToTopic(topicToSubscribe);
-                                        Toast.makeText(getApplicationContext(), "Subscirbed", Toast.LENGTH_SHORT).show();
+                                        try {
+                                            getSavedJokesFirebase();
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     } else {
                                     }
                                 }
@@ -93,5 +111,75 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    public void getSavedJokesFirebase() throws JSONException {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("gooff", "task successful");
+                            idToken[0] = task.getResult().getToken();
+                            data.put("token", idToken[0]);
+                            FirebaseFunctions.getInstance()
+                                    .getHttpsCallable("getSavedJokes")
+                                    .call(data)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            HashMap result = (HashMap) task.getResult().getData();
+                                            JSONObject res = new JSONObject(result);
+                                            String returnedIDs  = res.getString("value");
+                                            String[] jokeIDArray = returnedIDs.split(" ");
+                                            for(int x=0;x<jokeIDArray.length;x++){
+                                                getJokeFirebase(Integer.parseInt(jokeIDArray[x]));
+                                            }
+                                            return null;
+                                        }
+                                    });
+                            // ...
+                        } else {
+                        }
+                    }
+                });
+    }
+    public void getJokeFirebase(int jokeID) throws JSONException {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            idToken[0] = task.getResult().getToken();
+                            data.put("token", idToken[0]);
+                            Log.d("firebaseprob","jokeId" + jokeID);
+                            data.put("id",String.valueOf(jokeID));
+                            FirebaseFunctions.getInstance()
+                                    .getHttpsCallable("returnJoke")
+                                    .call(data)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            HashMap result = (HashMap) task.getResult().getData();
+                                            JSONObject res = new JSONObject(result);
+                                            JSONObject finalJoke = new JSONObject( res.getString("value"));
+                                            Log.d("firebaseprob","stuff returned: " + finalJoke);
+                                            StoreJokesLocally.saveJoke(finalJoke,getApplicationContext());
+                                            updateJokes = new Intent("UPDATEJOKE");
+                                            updateJokes.putExtra("instruction","save");
+                                            updateJokes.putExtra("actiontotake","list");
+                                            updateJokes.putExtra("joke", String.valueOf(finalJoke));
+                                            sendBroadcast(updateJokes);
+                                            return null;
+                                        }
+                                    });
+                            // ...
+                        } else {
+                        }
+                    }
+                });
     }
 }

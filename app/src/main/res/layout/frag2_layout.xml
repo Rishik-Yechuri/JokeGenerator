@@ -5,23 +5,42 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292424"
     android:layout_gravity="top"
-    tools:context=".Frag2"
-    android:orientation="horizontal">
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:background="#292424"
+    android:orientation="vertical"
+    tools:context=".Frag2">
+
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/top_coordinator"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top">
-        <!--<Space
-            android:layout_width="match_parent"
-            android:layout_height="50dp" />-->
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_gravity="top"
+        android:elevation="100dp" />
+
+    </FrameLayout>
+    <!--<androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/top_coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:elevation="100dp" />-->
+
+    <!--<androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />-->
 
 
-</LinearLayout>
-<!--<?xml version="1.0" encoding="UTF-8"?>
+</LinearLayout><!--<?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -32,5 +51,5 @@
     <!- Header goes here -->
     <!-- Body goes here -->
 
-<!--</LinearLayout>-->
+    <!--</LinearLayout>-->
 
