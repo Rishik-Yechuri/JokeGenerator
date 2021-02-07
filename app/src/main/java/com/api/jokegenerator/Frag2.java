@@ -39,6 +39,7 @@ public class Frag2 extends Fragment {
     LinearLayout coordinatorLayout;
     BroadcastReceiver _updateJokes;
     ArrayList<String> jokeListArray = new ArrayList<>();
+    ArrayList<Integer> jokeListIDArray = new ArrayList<>();
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
 
@@ -57,6 +58,7 @@ public class Frag2 extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("finalglitch","jokeList length:" + jokeList.length());
         for (int x = 0; x < jokeList.length(); x++) {
             JSONObject tempJokeHolder;
             try {
@@ -67,7 +69,16 @@ public class Frag2 extends Fragment {
                 } else if (tempJokeHolder.getString("type").equals("twopart")) {
                     jokeText = tempJokeHolder.getString("setup") + tempJokeHolder.getString("delivery");
                 }
-                jokeListArray.add((jokeText));
+                boolean canAdd = true;
+                for(int i=0;i<jokeListArray.size();i++) {
+                    if (jokeText.equals(jokeListArray.get(i))) {
+                        canAdd = false;
+                    }
+                }
+                if(canAdd) {
+                    jokeListArray.add((jokeText));
+                    jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -86,39 +97,62 @@ public class Frag2 extends Fragment {
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("onreceive", "Received");
-            String instruction = intent.getExtras().getString("actiontotake");
-            String jokeToAdd = null;
-            if (instruction.equals("sync")) {
-                showSync();
-            } else if (instruction.equals("list")) {
+            String instruction = intent.getExtras().getString("instruction");
+            if (instruction.equals("save")) {
+                Log.d("finalglitch","new joke saved");
+                String jokeString = null;
                 JSONObject tempJokeHolder = null;
                 try {
                     tempJokeHolder = new JSONObject(intent.getExtras().getString("joke"));
                     boolean canAdd = true;
-                    for(int x=0;x<jokeListArray.size();x++){
-                        JSONObject jokeToCompareTo = new JSONObject(jokeListArray.get(x));
-                        String jokeIdToCompare = jokeToCompareTo.getString("id");
-                        if(jokeIdToCompare.equals(tempJokeHolder.getString("id"))){
-                            canAdd=false;
+                    for (int x = 0; x < jokeListArray.size(); x++) {
+                        //String jokeIdToCompare = jokeToCompareTo.getString("id");
+                        String tempJoke = "";
+                        try {
+                            tempJoke = returnJokeString(intent.getExtras().getString("joke"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        for(int i=0;i<jokeListArray.size();i++) {
+                            if (tempJoke.equals(jokeListArray.get(x))) {
+                                canAdd = false;
+                            }
                         }
                     }
                     if (!tempJokeHolder.getString("id").equals("-1") && canAdd) {
-                        if (tempJokeHolder.getString("type").equals("single")) {
-                            jokeToAdd = tempJokeHolder.getString("joke");
-                        } else if (tempJokeHolder.getString("type").equals("twopart")) {
-                            jokeToAdd = tempJokeHolder.getString("setup") + tempJokeHolder.getString("delivery");
+                        try {
+                            jokeString = returnJokeString(intent.getExtras().getString("joke"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        jokeListArray.add(jokeToAdd);
+                        jokeListArray.add(jokeString);
+                        jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
                         adapter.notifyDataSetChanged();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+            } else if (instruction.equals("delete")) {
+                int id = Integer.parseInt(intent.getExtras().getString("id"));
+                int index = jokeListIDArray.indexOf(id);
+                jokeListIDArray.remove(index);
+                jokeListArray.remove(index);
+                adapter.notifyDataSetChanged();
             }
+            showSync();
         }
     }
-
+    public String returnJokeString(String tempJokeString) throws JSONException {
+        Log.d("listupdate","parameter value:" + tempJokeString);
+        JSONObject tempJokeJSON = new JSONObject(tempJokeString);
+        String tempJoke = "";
+        if (tempJokeJSON.getString("type").equals("single")) {
+            tempJoke = tempJokeJSON.getString("joke");
+        } else {
+            tempJoke = tempJokeJSON.getString("setup") + tempJokeJSON.getString("delivery");
+        }
+        return tempJoke;
+    }
     public void showSync() {
         View rotatedCoordinator = view.findViewById(R.id.top_coordinator);
         rotatedCoordinator.setRotation(180);

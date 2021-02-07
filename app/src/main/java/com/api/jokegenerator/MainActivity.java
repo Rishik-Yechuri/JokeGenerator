@@ -49,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             // User is signed in
-            try {
+            /*try {
                 getSavedJokesFirebase();
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
             Intent i = new Intent(MainActivity.this, JokeScreen.class);
             startActivity(i);
             finish();
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                                             StoreJokesLocally.saveJoke(finalJoke,getApplicationContext());
                                             updateJokes = new Intent("UPDATEJOKE");
                                             updateJokes.putExtra("instruction","save");
-                                            updateJokes.putExtra("actiontotake","list");
+                                            //updateJokes.putExtra("actiontotake","list");
                                             updateJokes.putExtra("joke", String.valueOf(finalJoke));
                                             sendBroadcast(updateJokes);
                                             return null;

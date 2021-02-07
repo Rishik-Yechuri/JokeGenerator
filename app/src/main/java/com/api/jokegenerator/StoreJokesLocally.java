@@ -27,7 +27,7 @@ public class StoreJokesLocally {
             tempJSONArray = new JSONArray();
         }
         String tempID = String.valueOf(jokeToSave.getInt("id"));
-        if (!checkIfJokeSaved("20", context)) {
+        if (!checkIfJokeSaved(tempID, context)) {
             tempJSONArray.put(jokeToSave);
             context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localjokes", String.valueOf(tempJSONArray)).apply();
             String stringOfJSONObject = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");

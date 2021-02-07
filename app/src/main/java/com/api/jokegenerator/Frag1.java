@@ -186,7 +186,7 @@ public class Frag1 extends Fragment {
     class GenerateJokeListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            //If "generate joke" button is pressed, new joke is displated
+            //If "generate joke" button is pressed, new joke is displayed
             if (v.getId() == R.id.generateJokeButton) {
                 getJokeAndDisplay();
             }

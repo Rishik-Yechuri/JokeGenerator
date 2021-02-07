@@ -35,9 +35,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Log.d("recycle","onBind Called");
-        if(!jokes.contains(jokes.get(position))){
+        //if(!jokes.indexOf(jokes.ge)){
             holder.jokeText.setText(jokes.get(position));
-        }
+        //}
         //holder.jokeText.setText("HEY");
         /*holder.mainLayout.setOnClickListener(new View.OnClickListener(){
             @Override
