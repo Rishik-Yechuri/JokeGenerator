@@ -346,8 +346,9 @@ public class Frag1 extends Fragment {
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.d("TAG", "onError: " + e);
+
             }
+
 
             @Override
             public void onComplete() {
