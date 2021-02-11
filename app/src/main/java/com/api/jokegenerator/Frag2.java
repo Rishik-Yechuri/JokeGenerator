@@ -48,11 +48,15 @@ import java.util.Objects;
 
 public class Frag2 extends Fragment {
     View view;
+    //The layout that stores the notification widget(upside down snackbar)
     LinearLayout coordinatorLayout;
+    //_updateJokes is a BroadcastReceiver that waits for messages from other activities
     BroadcastReceiver _updateJokes;
+    //Stores jokes,and their IDs
     JSONArray jokeList;
     ArrayList<String> jokeListArray = new ArrayList<>();
     ArrayList<Integer> jokeListIDArray = new ArrayList<>();
+    //Used for the RecycleView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
 
@@ -60,20 +64,25 @@ public class Frag2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle onSavedInstance) {
         view = inflater.inflate(R.layout.frag2_layout, container, false);
+        //Creates an IntentFilter that waits for "UPDATEJOKE"
         IntentFilter intentFilter = new IntentFilter("UPDATEJOKE");
+        //Sets up stuff for the BroadcastReceiver
         _updateJokes = new SyncUpdate();
         getActivity().registerReceiver(_updateJokes, intentFilter);
         coordinatorLayout = view.findViewById(R.id.coordinatorLayout);
         //A JSON array that stores all the jokes,each of the jokes is a JSON.
         jokeList = new JSONArray();
         try {
+            //Gets the jokes from sharedPreferences and updates jokeList
             jokeList = StoreJokesLocally.returnSavedJokes(getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("finalglitch", "jokeList length:" + jokeList.length());
+        //Goes through each joke
         for (int x = 0; x < jokeList.length(); x++) {
+            //Stores the current joke
             JSONObject tempJokeHolder;
+
             try {
                 tempJokeHolder = (JSONObject) jokeList.get(x);
                 String jokeText = "";
@@ -82,12 +91,14 @@ public class Frag2 extends Fragment {
                 } else if (tempJokeHolder.getString("type").equals("twopart")) {
                     jokeText = tempJokeHolder.getString("setup") + tempJokeHolder.getString("delivery");
                 }
+                //Makes sure there aren't duplicates of the current joke
                 boolean canAdd = true;
                 for (int i = 0; i < jokeListArray.size(); i++) {
                     if (jokeText.equals(jokeListArray.get(i))) {
                         canAdd = false;
                     }
                 }
+                //If there aren't duplicate jokes,save the joke and its ID
                 if (canAdd) {
                     jokeListArray.add((jokeText));
                     jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
@@ -96,6 +107,7 @@ public class Frag2 extends Fragment {
                 e.printStackTrace();
             }
         }
+        //Initializes the recycler view
         initializeRecyclerView();
         return view;
     }
@@ -112,16 +124,19 @@ public class Frag2 extends Fragment {
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Gets the instruction from the message
             String instruction = intent.getExtras().getString("instruction");
+            //Saves if the instruction is "save"
             if (instruction.equals("save")) {
                 JSONObject tempJokeHolder = null;
-                Log.d("finalglitch", "new joke saved");
                 String jokeString = null;
                 try {
+                    //Initializes the current joke
                     tempJokeHolder = new JSONObject(intent.getExtras().getString("joke"));
+                    //Goes through the saved jokes checking for duplicates
                     boolean canAdd = true;
                     for (int x = 0; x < jokeListArray.size(); x++) {
-                        //String jokeIdToCompare = jokeToCompareTo.getString("id");
+                        //tempJoke is used to temporarily store a joke from "jokeListArray"
                         String tempJoke = "";
                         try {
                             tempJoke = returnJokeString(intent.getExtras().getString("joke"));
@@ -129,17 +144,20 @@ public class Frag2 extends Fragment {
                             e.printStackTrace();
                         }
                         for (int i = 0; i < jokeListArray.size(); i++) {
+                            //If the received joke is locally saved,set canAdd to false
                             if (tempJoke.equals(jokeListArray.get(x))) {
                                 canAdd = false;
                             }
                         }
                     }
+                    //Checks if the joke can be added
                     if (!tempJokeHolder.getString("id").equals("-1") && canAdd) {
                         try {
                             jokeString = returnJokeString(intent.getExtras().getString("joke"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        //Saves the joke information and notifies the recycler view of the changes
                         jokeListArray.add(jokeString);
                         jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
                         adapter.notifyDataSetChanged();
@@ -147,10 +165,13 @@ public class Frag2 extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            } else if (instruction.equals("delete")) {
+            }
+            //Deletes if the instruction is "delete"
+            else if (instruction.equals("delete")) {
                 int id = Integer.parseInt(intent.getExtras().getString("id"));
                 int index = jokeListIDArray.indexOf(id);
                 if (index != -1) {
+                    //Deletes the joke and notifies the recycler view
                     jokeListIDArray.remove(index);
                     jokeListArray.remove(index);
                     adapter.notifyDataSetChanged();
@@ -160,6 +181,7 @@ public class Frag2 extends Fragment {
         }
     }
 
+    //Given the JSON of the joke,only the joke part is returned(joke or setup/delivery)
     public String returnJokeString(String tempJokeString) throws JSONException {
         Log.d("listupdate", "parameter value:" + tempJokeString);
         JSONObject tempJokeJSON = new JSONObject(tempJokeString);
@@ -172,6 +194,7 @@ public class Frag2 extends Fragment {
         return tempJoke;
     }
 
+    //Shows a Snackbar from the top that says "Jokes Synced"
     public void showSync() {
         View rotatedCoordinator = view.findViewById(R.id.top_coordinator);
         rotatedCoordinator.setRotation(180);
@@ -195,6 +218,8 @@ public class Frag2 extends Fragment {
         snack.show();
     }
 
+
+    //Is used to check if a joke has been swiped left,and deletes them
     ItemTouchHelper.SimpleCallback jokeTouched = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -203,21 +228,15 @@ public class Frag2 extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-           /* ListAllTask quickDeleteTask;
-            try {
-                quickDeleteTask = new ListAllTask(false, new JSONObject(String.valueOf(jokeList.get(jokeListIDArray.remove(viewHolder.getAdapterPosition())))));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
+            //Deletes the joke from firebase(it will later get notified to delete it locally too)
             try {
                 deleteJoke(String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition())));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            //Removes it from the recycler view,and notifies the recycler view
             jokeListArray.remove(viewHolder.getAdapterPosition());
-            //jokeListIDArray.remove(viewHolder.getAdapterPosition());
             adapter.notifyDataSetChanged();
-
         }
     };
 
@@ -225,6 +244,7 @@ public class Frag2 extends Fragment {
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
+    //Calls firebase to delete the joke
     public void deleteJoke(String id) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
@@ -233,7 +253,6 @@ public class Frag2 extends Fragment {
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d("gooff", "task successful");
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(getActivity()));

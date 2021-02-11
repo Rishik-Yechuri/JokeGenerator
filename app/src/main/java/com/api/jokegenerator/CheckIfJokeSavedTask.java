@@ -28,39 +28,47 @@ public class CheckIfJokeSavedTask {
         this.isComplete = isComplete;
         this.jokeID = jokeID;
     }
-
+    //This is the function that other classes call
     public boolean checkIfStored() throws JSONException, InterruptedException {
-        Log.d("somethingbrokedebug","In check if stored");
+        //Calls the function which communicates with firebase
         checkIfStoredFirebase();
+        //Waits until server side operations are finished
         synchronized (commonObject) {
             commonObject.wait();
         }
+        //Returns whether or not the joke is stored
         return isStored;
     }
-
+    //Calls a firebase function to see if the joke is saved
     public void checkIfStoredFirebase() throws JSONException {
         final String[] idToken = {""};
+        //Holds data which is then sent to firebase
         Map<String, Object> data = new HashMap<>();
+        //Gets the user
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        //Wait until the user token is received
         mUser.getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
                             idToken[0] = task.getResult().getToken();
+                            //add data to the Hashmap
                             data.put("token", idToken[0]);
                             data.put("jokeid",jokeID);
+                            //Call the firebase function "checkIfJokeSaved"
                             FirebaseFunctions.getInstance()
                                     .getHttpsCallable("checkIfJokeSaved")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
                                         @Override
                                         public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            //Converts the returned data to a JSONObject
                                             HashMap result = (HashMap) task.getResult().getData();
                                             JSONObject res = new JSONObject(result);
+                                            //isStoredTemp is "true" if the joke is saved,and "false" otherwise
                                             boolean isStoredTemp = Boolean.parseBoolean(res.getString("jokeStored"));
-                                            Log.d("finalthing","isStoredTemp:" + isStoredTemp);
                                             isStored = isStoredTemp;
-                                            Log.d("somethingbrokedebug","isStored:" + isStored);
+                                            //Calls .notify() so the .wait() statement stops waiting
                                             synchronized (commonObject) {
                                                 commonObject.notify();
                                             }
@@ -69,13 +77,12 @@ public class CheckIfJokeSavedTask {
                                     });
                             // ...
                         } else {
-                            Log.d("tokencheck", "task is not successful");
+                            //Calls .notify() so the .wait() statement stops waiting
                             synchronized (commonObject) {
                                 commonObject.notify();
                             }
                         }
                     }
                 });
-        Log.d("checkerdebug","pre notify");
     }
 }

@@ -23,7 +23,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 
 public class SignUp extends AppCompatActivity {
+    //Used for authentication
     private FirebaseAuth mAuth;
+    //Sets up Views
     TextView logInView;
     EditText editTextTextEmailAddress;
     EditText editTextTextPassword;
@@ -33,7 +35,9 @@ public class SignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
+        //Initializes views and sets onclicklisteners
         logInView = findViewById(R.id.logInView);
         logInView.setOnClickListener(new LogInClicked());
         editTextTextEmailAddress = findViewById(R.id.editTextEmailAddressLogIn);
@@ -45,34 +49,40 @@ public class SignUp extends AppCompatActivity {
     class LogInClicked implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            //If log in is pressed it exits
             if (v.getId() == R.id.logInView) {
-                //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                //startActivity(intent);
                 finish();
-            } else if (v.getId() == R.id.signUpButton) {
+            }
+            //If the user clicks sign up,they get registered
+            else if (v.getId() == R.id.signUpButton) {
                 registerUser();
             }
         }
     }
 
     public void registerUser() {
+        //Gets input from fields
         String email = editTextTextEmailAddress.getText().toString();
         String password = editTextTextPassword.getText().toString();
+        //Makes sure email isn't empty
         if (email.isEmpty()) {
             editTextTextEmailAddress.setError("Email is required");
             editTextTextEmailAddress.requestFocus();
             return;
         }
+        //Makes sure the email is valid
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             editTextTextEmailAddress.setError("Enter a valid email");
             editTextTextEmailAddress.requestFocus();
             return;
         }
+        //Checks if the password is long enough
         if (password.length() < 10) {
             editTextTextPassword.setError("Password must be at least 10 characters long");
             editTextTextPassword.requestFocus();
             return;
         }
+        //Once all the checks are passed,a new user is created
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -83,6 +93,7 @@ public class SignUp extends AppCompatActivity {
                             .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                                 public void onComplete(@NonNull Task<GetTokenResult> task) {
                                     if (task.isSuccessful()) {
+                                        //Subscribes to topic with the name of token
                                         FirebaseMessaging.getInstance().subscribeToTopic(task.getResult().getToken());
                                     } else {
                                     }
@@ -91,6 +102,7 @@ public class SignUp extends AppCompatActivity {
                     startActivity(intent);
                     finish();
                 }else{
+                    //If the user is already registered,displays a message
                   if(task.getException() instanceof FirebaseAuthUserCollisionException){
                       Toast.makeText(getApplicationContext(),"email already registered",Toast.LENGTH_SHORT).show();
                   }

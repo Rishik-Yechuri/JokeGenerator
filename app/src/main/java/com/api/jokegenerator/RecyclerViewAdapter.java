@@ -14,12 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
-
-
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+    //Stores all the jokes to be displayed
     ArrayList<String> jokes = new ArrayList<>();
     Context mContext;
-    public RecyclerViewAdapter(ArrayList<String> jokes,Context context){
+
+    public RecyclerViewAdapter(ArrayList<String> jokes, Context context) {
+        //Initializes variables
         this.jokes = jokes;
         mContext = context;
     }
@@ -27,37 +28,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclablejoke,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclablejoke, parent, false);
         ViewHolder holder = new ViewHolder(view);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Log.d("recycle","onBind Called");
-        //if(!jokes.indexOf(jokes.ge)){
-            holder.jokeText.setText(jokes.get(position));
-        //}
-        //holder.jokeText.setText("HEY");
-        /*holder.mainLayout.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Toast.makeText(mContext,"Something clicked",Toast.LENGTH_SHORT).show();
-            }
-        });*/
+        //Sets the jokes text
+        holder.jokeText.setText(jokes.get(position));
     }
 
     @Override
     public int getItemCount() {
-        Log.d("recycle","Joke Size:" + jokes.size());
-        Log.d("recycle","Jokes:" + jokes.toString());
         return jokes.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout mainLayout;
         TextView jokeText;
-        public ViewHolder(View itemView){
+
+        public ViewHolder(View itemView) {
             super(itemView);
             mainLayout = itemView.findViewById(R.id.recyclableLayout);
             jokeText = itemView.findViewById(R.id.JokeText);

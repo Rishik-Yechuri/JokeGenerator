@@ -21,7 +21,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
-        Log.d("storagenotification", "newToken");
         getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply();
     }
 
@@ -29,72 +28,76 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // TODO(developer): Handle FCM messages here.
         JSONObject jsonReceived = null;
-        Log.d("onreceive","firebase");
         Intent updateJokes = null;
-        if (remoteMessage.getData().get("purpose").equals("savejoke")) {
-            Log.d("amg","save joke");
+        /*if (remoteMessage.getData().get("purpose").equals("savejoke")) {
             try {
-                Log.d("listupdate","received JSON:" + remoteMessage.getData().get("actualJSON"));
                 jsonReceived = new JSONObject(remoteMessage.getData().get("actualJSON"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             try {
-                Log.d("woah", "saved jokes:" + "precall");
                 StoreJokesLocally.saveJoke((JSONObject) jsonReceived, getApplicationContext());
-                Log.d("woah", "postcall");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d("onreceive","firebase save");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","save");
             updateJokes.putExtra("joke", String.valueOf(jsonReceived));
             updateJokes.putExtra("actiontotake","sync");
         } else if (remoteMessage.getData().get("purpose").equals("deletejoke")) {
-            Log.d("amg","delete joke");
             String jokeIDToDelete = remoteMessage.getData().get("jokeid");
             try {
                 StoreJokesLocally.deleteJoke(jokeIDToDelete,getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Log.d("onreceive","firebase delete");
             updateJokes = new Intent("UPDATEJOKE");
             updateJokes.putExtra("instruction","delete");
             updateJokes.putExtra("id",jokeIDToDelete);
             updateJokes.putExtra("actiontotake","sync");
-        }
-       /* if(remoteMessage.getData().get("purpose").equals("deletejoke") || remoteMessage.getData().get("purpose").equals("save")){
-            updateJokes = changeJokes(getApplicationContext(),remoteMessage);
         }*/
-        sendBroadcast(updateJokes);
-        Log.d("amg","end of message");
-        Log.d("amg","value of jokes:" + getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).getString("localjokes",""));
+        //If the purpose is "savejoke" or "deletejoke",call changeJokes
+        if(remoteMessage.getData().get("purpose").equals("savejoke") || remoteMessage.getData().get("purpose").equals("deletejoke")){
+            changeJokes(getApplicationContext(),remoteMessage);
+        }
+        //Send a broadcast if the Intent isn't null
+        if(updateJokes != null) {
+            sendBroadcast(updateJokes);
+        }
     }
+
     public static Intent changeJokes(Context context,RemoteMessage remoteMessage){
         Intent updateJokes = null;
         JSONObject jsonReceived = null;
+        //Gets the ID from the joke
         String jokeIDToDelete = remoteMessage.getData().get("jokeid");
-        try {
-            StoreJokesLocally.deleteJoke(jokeIDToDelete,context);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        //Gets the jokeJSON from Firebase
         try {
             jsonReceived = new JSONObject(remoteMessage.getData().get("actualJSON"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("onreceive","firebase delete");
         updateJokes = new Intent("UPDATEJOKE");
-        updateJokes.putExtra("joke",String.valueOf(jsonReceived));
         if(remoteMessage.getData().get("purpose").equals("save")){
+            //Saves the joke locally
+            try {
+                StoreJokesLocally.saveJoke((JSONObject) jsonReceived, context);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             updateJokes.putExtra("instruction","save");
+            updateJokes.putExtra("joke",String.valueOf(jsonReceived));
         }else if(remoteMessage.getData().get("purpose").equals("deletejoke")){
+            //Deletes the joke locally
+            try {
+                StoreJokesLocally.deleteJoke(jokeIDToDelete,context);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             updateJokes.putExtra("instruction","delete");
+            updateJokes.putExtra("id",jokeIDToDelete);
+
         }
-        Log.d("listupdate","intent returned" + updateJokes);
         return updateJokes;
     }
     public static String getToken(Context context) {

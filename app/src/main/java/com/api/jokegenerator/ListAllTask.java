@@ -28,65 +28,72 @@ public class ListAllTask {
     private JSONObject jokeJSON = null;
     private Task<ListResult> holdReturnedJokes;
 
-    public ListAllTask(boolean isComplete,JSONObject jokeJSON) {
+    public ListAllTask(boolean isComplete, JSONObject jokeJSON) {
+        //Initialize local variables
         this.isComplete = isComplete;
-        //this.id = id;
         this.jokeJSON = jokeJSON;
     }
-   public void storeJoke(Context context) throws JSONException {
+
+    public void storeJoke(Context context) throws JSONException {
+        //Calls "saveJokeIDFirebase" which saves the joke on firebase
         saveJokeIDFirebase(context);
-   }
+    }
+
+    //Returns whether the task is completed or not
     public boolean isComplete() {
         return isComplete;
     }
-    public Task<ListResult> getJokes(){
-        Log.d("TAG","holdReturnedJokes sent:" + holdReturnedJokes);
+
+    public Task<ListResult> getJokes() {
         return holdReturnedJokes;
     }
+
     public void saveJokeIDFirebase(Context context) throws JSONException {
         final String[] idToken = {""};
+        //Stores data to be sent to firebase
         Map<String, Object> data = new HashMap<>();
+        //Gets the user
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        //Gets the token
         mUser.getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d("tokencheck","task.getToken:" + task.getResult().getToken());
+                            //Data is added to the HashMap
                             idToken[0] = task.getResult().getToken();
-                            Log.d("tokencheck","idToken[0]" + task.getResult().getToken());
-                            // Send token to your backend via HTTPS
+                            Log.d("tokencheck", "idToken[0]" + task.getResult().getToken());
                             data.put("token", idToken[0]);
-                            data.put("fcmtoken",MyFirebaseMessagingService.getToken(context));
-                            data.put("jokejson",jokeJSON);
-                            Log.d("tokencheck","token value:" + idToken[0]);
+                            data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
+                            data.put("jokejson", jokeJSON);
+                            Log.d("tokencheck", "token value:" + idToken[0]);
                             try {
-                                data.put("jokeid",jokeJSON.getString("id"));
+                                data.put("jokeid", jokeJSON.getString("id"));
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            //Saves joke locally
                             try {
-                                StoreJokesLocally.saveJoke(jokeJSON,context);
+                                StoreJokesLocally.saveJoke(jokeJSON, context);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            //Calls "saveJokeID" Firebase function
                             FirebaseFunctions.getInstance()
                                     .getHttpsCallable("saveJokeID")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
                                         @Override
                                         public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            //Gets the results and saves them as a JSONObject
                                             HashMap result = (HashMap) task.getResult().getData();
                                             JSONObject res = new JSONObject(result);
-                                            //String message = res.getString("gameID");
-                                            Log.d("serverresult","gameID: none");
-                                            //openShowCode(message);
                                             return null;
                                         }
                                     });
                             // ...
                         } else {
-                            Log.d("tokencheck","task is not successful");
-                            // Handle error -> task.getException();
+                            //Logs if task isn't successful
+                            Log.d("tokencheck", "task is not successful");
                         }
                     }
                 });

@@ -17,8 +17,8 @@ public class StoreJokesLocally {
     public StoreJokesLocally() {
     }
 
+    //Saves the joke using sharedPreferences
     public static void saveJoke(JSONObject jokeToSave, Context context) throws JSONException {
-        Log.d("offlinecheck", "Joke Saved offline");
         JSONArray tempJSONArray;
         String stringOfArray = context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", "");
         if (stringOfArray != "") {
@@ -42,6 +42,7 @@ public class StoreJokesLocally {
         }
     }
 
+    //Deletes the joke using sharedPreferences
     public static void deleteJoke(String jokeID, Context context) throws JSONException {
         String listOfIDString = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");
         JSONObject idJSON = new JSONObject(listOfIDString);
@@ -61,7 +62,7 @@ public class StoreJokesLocally {
         context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localjokes", String.valueOf(jokeList)).apply();
         context.getSharedPreferences("_", MODE_PRIVATE).edit().putString("localids", String.valueOf(idJSON)).apply();
     }
-
+    //Checks if a joke is saved locally,using its ID
     public static boolean checkIfJokeSaved(String jokeID, Context context) throws JSONException {
         String JSONIdsString = context.getSharedPreferences("_", MODE_PRIVATE).getString("localids", "");
         JSONObject JSONIds = null;
@@ -70,8 +71,6 @@ public class StoreJokesLocally {
         } else {
             return false;
         }
-        Log.d("angery", "JSONObject:" + JSONIds);
-        Log.d("angery", "jokeID:" + jokeID);
         boolean jokeSaved = false;
         Iterator<String> iter = JSONIds.keys();
         while (iter.hasNext()) {
@@ -80,10 +79,9 @@ public class StoreJokesLocally {
                 jokeSaved = true;
             }
         }
-        Log.d("angery", "saved?:" + jokeSaved);
         return jokeSaved;
     }
-
+    //Returns all of the jokes in a JSONArray
     public static JSONArray returnSavedJokes(Context context) throws JSONException {
         JSONArray tempJSONArray;
         String stringOfArray = context.getSharedPreferences("_", MODE_PRIVATE).getString("localjokes", "");

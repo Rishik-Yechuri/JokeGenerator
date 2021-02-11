@@ -14,8 +14,8 @@ import com.google.android.material.tabs.TabLayout;
 import java.io.IOException;
 
 public class JokeScreen extends AppCompatActivity {
-    String nextThing;
 
+    //Holds the two tabs,and sets the colors
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

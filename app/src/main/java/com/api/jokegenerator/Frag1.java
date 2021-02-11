@@ -502,6 +502,7 @@ public class Frag1 extends Fragment {
         }
     }
 
+    //Gets rid of uneccesary data when destroyed
     @Override
     public void onDestroy() {
         super.onDestroy();
