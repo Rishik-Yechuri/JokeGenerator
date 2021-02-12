@@ -61,11 +61,9 @@ public class ListAllTask {
                         if (task.isSuccessful()) {
                             //Data is added to the HashMap
                             idToken[0] = task.getResult().getToken();
-                            Log.d("tokencheck", "idToken[0]" + task.getResult().getToken());
                             data.put("token", idToken[0]);
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
                             data.put("jokejson", jokeJSON);
-                            Log.d("tokencheck", "token value:" + idToken[0]);
                             try {
                                 data.put("jokeid", jokeJSON.getString("id"));
                             } catch (JSONException e) {

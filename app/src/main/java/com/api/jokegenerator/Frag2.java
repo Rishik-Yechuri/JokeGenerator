@@ -85,24 +85,23 @@ public class Frag2 extends Fragment {
 
             try {
                 tempJokeHolder = (JSONObject) jokeList.get(x);
-                String jokeText = "";
+               /* String jokeText = "";
                 if (tempJokeHolder.getString("type").equals("single")) {
                     jokeText = tempJokeHolder.getString("joke");
                 } else if (tempJokeHolder.getString("type").equals("twopart")) {
                     jokeText = tempJokeHolder.getString("setup") + tempJokeHolder.getString("delivery");
-                }
+                }*/
                 //Makes sure there aren't duplicates of the current joke
-                boolean canAdd = true;
+                /*boolean canAdd = true;
                 for (int i = 0; i < jokeListArray.size(); i++) {
                     if (jokeText.equals(jokeListArray.get(i))) {
                         canAdd = false;
                     }
-                }
+                }*/
                 //If there aren't duplicate jokes,save the joke and its ID
-                if (canAdd) {
-                    jokeListArray.add((jokeText));
+                //if (canAdd) {
                     jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
-                }
+                //}
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -116,7 +115,7 @@ public class Frag2 extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(recyclerView);
-        adapter = new RecyclerViewAdapter(jokeListArray, getContext());
+        adapter = new RecyclerViewAdapter(jokeList, getContext());
         recyclerView.setAdapter(adapter);
 
     }
@@ -135,7 +134,7 @@ public class Frag2 extends Fragment {
                     tempJokeHolder = new JSONObject(intent.getExtras().getString("joke"));
                     //Goes through the saved jokes checking for duplicates
                     boolean canAdd = true;
-                    for (int x = 0; x < jokeListArray.size(); x++) {
+                    /*for (int x = 0; x < jokeListArray.size(); x++) {
                         //tempJoke is used to temporarily store a joke from "jokeListArray"
                         String tempJoke = "";
                         try {
@@ -149,6 +148,14 @@ public class Frag2 extends Fragment {
                                 canAdd = false;
                             }
                         }
+                    }*/
+                    //tempJoke is used to temporarily store a joke from "jokeListArray"
+                    String tempJoke = intent.getExtras().getString("joke");;
+                    for (int i = 0; i < jokeList.length(); i++) {
+                        //If the received joke is locally saved,set canAdd to false
+                        if (tempJoke.equals(jokeList.get(i))) {
+                            canAdd = false;
+                        }
                     }
                     //Checks if the joke can be added
                     if (!tempJokeHolder.getString("id").equals("-1") && canAdd) {
@@ -158,7 +165,8 @@ public class Frag2 extends Fragment {
                             e.printStackTrace();
                         }
                         //Saves the joke information and notifies the recycler view of the changes
-                        jokeListArray.add(jokeString);
+                        //jokeListArray.add(jokeString);
+                        jokeList.put(tempJokeHolder);
                         jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
                         adapter.notifyDataSetChanged();
                     }
@@ -173,17 +181,17 @@ public class Frag2 extends Fragment {
                 if (index != -1) {
                     //Deletes the joke and notifies the recycler view
                     jokeListIDArray.remove(index);
-                    jokeListArray.remove(index);
+                    jokeList.remove(index);
+                    //jokeListArray.remove(index);
                     adapter.notifyDataSetChanged();
                 }
             }
-            showSync();
+            //showSync();
         }
     }
 
     //Given the JSON of the joke,only the joke part is returned(joke or setup/delivery)
-    public String returnJokeString(String tempJokeString) throws JSONException {
-        Log.d("listupdate", "parameter value:" + tempJokeString);
+    public static String returnJokeString(String tempJokeString) throws JSONException {
         JSONObject tempJokeJSON = new JSONObject(tempJokeString);
         String tempJoke = "";
         if (tempJokeJSON.getString("type").equals("single")) {
@@ -229,14 +237,31 @@ public class Frag2 extends Fragment {
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
+            String jokeID = String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition()));
+            JSONObject currentJokeJSON = null;
             try {
-                deleteJoke(String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition())));
+                deleteJoke(String.valueOf(jokeID));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             //Removes it from the recycler view,and notifies the recycler view
-            jokeListArray.remove(viewHolder.getAdapterPosition());
+           // jokeListArray.remove(viewHolder.getAdapterPosition());
+            currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
             adapter.notifyDataSetChanged();
+            JSONObject finalCurrentJokeJSON = currentJokeJSON;
+            Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON);
+                        listAllTask.storeJoke(getContext());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            undoAction.setActionTextColor(Color.rgb(255,200,35));
+            undoAction.show();
         }
     };
 
