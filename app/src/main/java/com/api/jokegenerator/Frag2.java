@@ -85,23 +85,7 @@ public class Frag2 extends Fragment {
 
             try {
                 tempJokeHolder = (JSONObject) jokeList.get(x);
-               /* String jokeText = "";
-                if (tempJokeHolder.getString("type").equals("single")) {
-                    jokeText = tempJokeHolder.getString("joke");
-                } else if (tempJokeHolder.getString("type").equals("twopart")) {
-                    jokeText = tempJokeHolder.getString("setup") + tempJokeHolder.getString("delivery");
-                }*/
-                //Makes sure there aren't duplicates of the current joke
-                /*boolean canAdd = true;
-                for (int i = 0; i < jokeListArray.size(); i++) {
-                    if (jokeText.equals(jokeListArray.get(i))) {
-                        canAdd = false;
-                    }
-                }*/
-                //If there aren't duplicate jokes,save the joke and its ID
-                //if (canAdd) {
-                    jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
-                //}
+                jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -150,7 +134,8 @@ public class Frag2 extends Fragment {
                         }
                     }*/
                     //tempJoke is used to temporarily store a joke from "jokeListArray"
-                    String tempJoke = intent.getExtras().getString("joke");;
+                    String tempJoke = intent.getExtras().getString("joke");
+                    ;
                     for (int i = 0; i < jokeList.length(); i++) {
                         //If the received joke is locally saved,set canAdd to false
                         if (tempJoke.equals(jokeList.get(i))) {
@@ -166,9 +151,31 @@ public class Frag2 extends Fragment {
                         }
                         //Saves the joke information and notifies the recycler view of the changes
                         //jokeListArray.add(jokeString);
-                        jokeList.put(tempJokeHolder);
-                        jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
-                        adapter.notifyDataSetChanged();
+                        int jokePosition = Integer.parseInt(intent.getExtras().getString("position"));
+                        if(jokePosition != -5){
+                            JSONArray updateJokeList = new JSONArray();
+                            for(int i=0;i<jokeList.length();i++){
+                                updateJokeList.put(jokeList.get(i));
+                            }
+                            for(int i=0;i<jokeList.length();i++){
+                                jokeList.remove(0);
+                            }
+                            for(int x=0;x<=updateJokeList.length();x++){
+                                if(x==jokePosition){
+                                    jokeList.put(tempJokeHolder);
+                                }
+                                if(x<updateJokeList.length()) {
+                                    jokeList.put(updateJokeList.get(x));
+                                }
+                            }
+                            //jokeList.put(Integer.parseInt(intent.getExtras().getString("position")),tempJokeHolder);
+                            jokeListIDArray.add(Integer.parseInt(intent.getExtras().getString("position")), Integer.valueOf(tempJokeHolder.getString("id")));
+                        }else{
+                            jokeList.put(tempJokeHolder);
+                            jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
+                            jokePosition = jokeList.length()-1;
+                        }
+                        adapter.notifyItemInserted(0/*jokePosition*//*Integer.parseInt(intent.getExtras().getString("position"))*/);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -245,7 +252,8 @@ public class Frag2 extends Fragment {
                 e.printStackTrace();
             }
             //Removes it from the recycler view,and notifies the recycler view
-           // jokeListArray.remove(viewHolder.getAdapterPosition());
+            // jokeListArray.remove(viewHolder.getAdapterPosition());
+            int position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
@@ -253,14 +261,16 @@ public class Frag2 extends Fragment {
                 @Override
                 public void onClick(View v) {
                     try {
-                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON);
+                       /* jokeList.put(position,finalCurrentJokeJSON);
+                        adapter.notifyItemInserted(position);*/
+                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON,position);
                         listAllTask.storeJoke(getContext());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             });
-            undoAction.setActionTextColor(Color.rgb(255,200,35));
+            undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
         }
     };

@@ -59,6 +59,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             updateJokes.putExtra("instruction","save");
             updateJokes.putExtra("joke",String.valueOf(jsonReceived));
+            updateJokes.putExtra("position",remoteMessage.getData().get("position"));
         }else if(remoteMessage.getData().get("purpose").equals("deletejoke")){
             //Deletes the joke locally
             try {

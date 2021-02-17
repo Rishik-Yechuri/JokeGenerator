@@ -317,7 +317,7 @@ public class Frag1 extends Fragment {
         //Array of tasks created
         List<ListAllTask> tasks = new ArrayList<>();
         //task added,with jokeJSON as the JSON parameter
-        tasks.add(new ListAllTask(false, jokeJSON));
+        tasks.add(new ListAllTask(false, jokeJSON,-5));
         Observable<ListAllTask> taskObservable = Observable
                 .fromIterable(tasks)
                 .subscribeOn(Schedulers.io())
