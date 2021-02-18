@@ -121,21 +121,6 @@ public class Frag2 extends Fragment {
                     tempJokeHolder = new JSONObject(intent.getExtras().getString("joke"));
                     //Goes through the saved jokes checking for duplicates
                     boolean canAdd = true;
-                    /*for (int x = 0; x < jokeListArray.size(); x++) {
-                        //tempJoke is used to temporarily store a joke from "jokeListArray"
-                        String tempJoke = "";
-                        try {
-                            tempJoke = returnJokeString(intent.getExtras().getString("joke"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        for (int i = 0; i < jokeListArray.size(); i++) {
-                            //If the received joke is locally saved,set canAdd to false
-                            if (tempJoke.equals(jokeListArray.get(x))) {
-                                canAdd = false;
-                            }
-                        }
-                    }*/
                     //tempJoke is used to temporarily store a joke from "jokeListArray"
                     String tempJoke = intent.getExtras().getString("joke");
                     ;
@@ -153,8 +138,10 @@ public class Frag2 extends Fragment {
                             e.printStackTrace();
                         }
                         //Saves the joke information and notifies the recycler view of the changes
-                        //jokeListArray.add(jokeString);
-                        int jokePosition = Integer.parseInt(intent.getExtras().getString("position"));
+                        int jokePosition = -5;
+                        if(intent.getExtras().getString("position") != null) {
+                            jokePosition = Integer.parseInt(intent.getExtras().getString("position"));
+                        }
                         if(jokePosition != -5){
                             JSONArray updateJokeList = new JSONArray();
                             for(int i=0;i<jokeList.length();i++){
@@ -178,7 +165,7 @@ public class Frag2 extends Fragment {
                             jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
                             jokePosition = jokeList.length()-1;
                         }
-                        adapter.notifyItemInserted(0/*jokePosition*//*Integer.parseInt(intent.getExtras().getString("position"))*/);
+                        adapter.notifyItemInserted(jokePosition);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

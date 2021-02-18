@@ -9,18 +9,23 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.Space;
 import android.widget.TextView;
@@ -87,7 +92,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class Frag1 extends Fragment {
+public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListener{
     //boolean backgroundTaskFinished = false;
 
     //Used for Tasks and RxJava. It is cleared when activity is destroyed
@@ -102,6 +107,7 @@ public class Frag1 extends Fragment {
     //Declare values for Views
     Button generateJokeButton;
     Button downloadButton;
+    Button optionsButton;
     TextView jokeQuestionText;
     TextView punchlineText;
 
@@ -121,6 +127,7 @@ public class Frag1 extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag1_layout, container, false);
         //Initialize Views
+        optionsButton = view.findViewById(R.id.optionbutton);
         generateJokeButton = view.findViewById(R.id.generateJokeButton);
         jokeQuestionText = view.findViewById(R.id.jokeQuestionText);
         punchlineText = view.findViewById(R.id.punchlineText);
@@ -129,6 +136,7 @@ public class Frag1 extends Fragment {
         //Set Listeners for Buttons
         generateJokeButton.setOnClickListener(new GenerateJokeListener());
         downloadButton.setOnClickListener(new GenerateJokeListener());
+        optionsButton.setOnClickListener(new OpenMenuListener());
 
         //Initialize mAuth, which is used for authentication
         mAuth = FirebaseAuth.getInstance();
@@ -182,6 +190,25 @@ public class Frag1 extends Fragment {
         return view;
     }
 
+    public void showPopup(View v){
+        Context wrapper = new ContextThemeWrapper(getContext(), R.style.PopupMenu);
+        PopupMenu popup = new PopupMenu(wrapper,v);
+        popup.setOnMenuItemClickListener(this);
+        popup.setGravity(Gravity.RIGHT);
+        popup.inflate(R.menu.popup_menu);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if(item.getItemId() == R.id.settings){
+            Toast.makeText(getContext(),"Settings",Toast.LENGTH_SHORT).show();
+        }else if(item.getItemId() == R.id.test){
+            Toast.makeText(getContext(),"Test",Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
     //A OnClickListener for Buttons
     class GenerateJokeListener implements View.OnClickListener {
         @Override
@@ -202,6 +229,13 @@ public class Frag1 extends Fragment {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    class OpenMenuListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            showPopup(v);
         }
     }
 
