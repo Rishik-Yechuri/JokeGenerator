@@ -1,9 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/settingsMainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="top"
+    android:background="#292424"
+    android:orientation="vertical"
     tools:context=".Settings">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Filters"
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimaryVariant"
+            android:textSize="27sp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2" />
+    </LinearLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="95dp"
+        android:scrollbars="none"
+        >
+
+        <LinearLayout
+            android:id="@+id/holdChipsLinear"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="7dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/filterChips"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:theme="@style/Theme.MaterialComponents.DayNight">
+                <!--<com.google.android.material.chip.Chip
+                    android:id="@+id/singeChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Single"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/twopartChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Twopart"
+                    android:theme="@style/Theme.MaterialComponents.DayNight"
+                    />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/programmingChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Programming"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/miscChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Misc"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/darkChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Dark"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/punChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Pun"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/spookyChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Spooky"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/christmasChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Christmas"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/nsfwChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Nsfw"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/religiousChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Religious"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/politicalChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Political"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/racistChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Racist"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/secistChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Sexist"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/explicitChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:text="Explicit"
+                    android:theme="@style/Theme.MaterialComponents.DayNight" />-->
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>

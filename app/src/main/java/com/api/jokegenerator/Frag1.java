@@ -202,9 +202,8 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if(item.getItemId() == R.id.settings){
-            Toast.makeText(getContext(),"Settings",Toast.LENGTH_SHORT).show();
-        }else if(item.getItemId() == R.id.test){
-            Toast.makeText(getContext(),"Test",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getActivity(),Settings.class);
+            startActivity(intent);
         }
         return false;
     }
