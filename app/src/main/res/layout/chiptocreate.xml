@@ -2,6 +2,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.Chip.Filter"
-    android:theme="@style/Theme.MaterialComponents.DayNight"
+    android:theme="@style/Theme.MaterialComponents"
+    android:clickable="true"
+    android:checkable="true"
     android:layout_marginEnd="7dp"
     xmlns:android="http://schemas.android.com/apk/res/android" />

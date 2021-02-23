@@ -1,9 +1,12 @@
 package com.api.jokegenerator;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -46,11 +49,12 @@ public class Settings extends AppCompatActivity {
         for (int x = 0; x < chipString.size(); x++) {
             Chip chipToCreate = (Chip) this.getLayoutInflater().inflate(R.layout.chiptocreate, null, false);
             chipToCreate.setText(chipString.get(x));
-            if(savedChips.contains(chipString.get(x))){
+            if (savedChips.contains(chipString.get(x))) {
                 chipToCreate.setChecked(true);
-                widthToSetGlobal+=20;
+                widthToSetGlobal += 20;
             }
             chipToCreate.setOnCheckedChangeListener(filterChipChecked);
+            chipToCreate.setChipBackgroundColorResource(R.color.colorAccent);
             filterChips.addView(chipToCreate);
         }
         filterChips.setLayoutParams(new LinearLayout.LayoutParams((int) convertDpToPx(getApplicationContext(), widthToSetGlobal), ViewGroup.LayoutParams.MATCH_PARENT));
@@ -77,9 +81,9 @@ public class Settings extends AppCompatActivity {
                 String[] tempJokes = stringOfArray.split("\\.");
                 savedChips.addAll(Arrays.asList(tempJokes));
             }
-            if(isChecked){
+            if (isChecked) {
                 savedChips.add(String.valueOf(buttonView.getText()));
-            }else{
+            } else {
                 savedChips.remove(String.valueOf(buttonView.getText()));
             }
             String stringToSave = "";
