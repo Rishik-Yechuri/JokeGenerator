@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                             .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                                 public void onComplete(@NonNull Task<GetTokenResult> task) {
                                     if (task.isSuccessful()) {
+                                        getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("jokeurl", "https://v2.jokeapi.dev/joke/Programming,Miscellaneous,Pun,Spooky,Christmas?blacklistFlags=nsfw,religious,racist,sexist,explicit").apply();
                                         //Subscribes to a topic using the users token
                                         String topicToSubscribe = task.getResult().getToken().split("\\.")[0];
                                         FirebaseMessaging.getInstance().subscribeToTopic(topicToSubscribe);

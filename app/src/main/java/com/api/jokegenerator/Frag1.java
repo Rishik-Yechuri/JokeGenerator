@@ -257,7 +257,7 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
                         URL url = null;
                         try {
                             //The URL(how the API is called) is set
-                            url = new URL("https://sv443.net/jokeapi/v2/joke/Any");
+                            url = new URL(getContext().getSharedPreferences("_", MODE_PRIVATE).getString("jokeurl", "https://v2.jokeapi.dev/joke/Programming,Miscellaneous,Pun,Spooky,Christmas?blacklistFlags=nsfw,religious,racist,sexist,explicit"));
                             //URL connection setup using URL
                             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                             //InputStream created
