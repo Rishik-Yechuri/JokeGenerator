@@ -26,12 +26,14 @@ public class ListAllTask {
     private boolean isComplete;
     private String id;
     private JSONObject jokeJSON = null;
+    private int position;
     private Task<ListResult> holdReturnedJokes;
 
-    public ListAllTask(boolean isComplete, JSONObject jokeJSON) {
+    public ListAllTask(boolean isComplete, JSONObject jokeJSON,int position) {
         //Initialize local variables
         this.isComplete = isComplete;
         this.jokeJSON = jokeJSON;
+        this.position = position;
     }
 
     public void storeJoke(Context context) throws JSONException {
@@ -61,11 +63,10 @@ public class ListAllTask {
                         if (task.isSuccessful()) {
                             //Data is added to the HashMap
                             idToken[0] = task.getResult().getToken();
-                            Log.d("tokencheck", "idToken[0]" + task.getResult().getToken());
                             data.put("token", idToken[0]);
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
                             data.put("jokejson", jokeJSON);
-                            Log.d("tokencheck", "token value:" + idToken[0]);
+                            data.put("position", String.valueOf(position));
                             try {
                                 data.put("jokeid", jokeJSON.getString("id"));
                             } catch (JSONException e) {

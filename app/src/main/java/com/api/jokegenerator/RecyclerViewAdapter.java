@@ -12,14 +12,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
     //Stores all the jokes to be displayed
-    ArrayList<String> jokes = new ArrayList<>();
+    JSONArray jokes = new JSONArray();
     Context mContext;
 
-    public RecyclerViewAdapter(ArrayList<String> jokes, Context context) {
+    public RecyclerViewAdapter(JSONArray jokes, Context context) {
         //Initializes variables
         this.jokes = jokes;
         mContext = context;
@@ -36,12 +39,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //Sets the jokes text
-        holder.jokeText.setText(jokes.get(position));
+        try {
+            String textOfJoke = Frag2.returnJokeString(String.valueOf(jokes.get(position)));
+            holder.jokeText.setText(textOfJoke);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int getItemCount() {
-        return jokes.size();
+        return jokes.length();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

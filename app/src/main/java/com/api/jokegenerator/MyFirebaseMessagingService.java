@@ -29,36 +29,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO(developer): Handle FCM messages here.
         JSONObject jsonReceived = null;
         Intent updateJokes = null;
-        /*if (remoteMessage.getData().get("purpose").equals("savejoke")) {
-            try {
-                jsonReceived = new JSONObject(remoteMessage.getData().get("actualJSON"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                StoreJokesLocally.saveJoke((JSONObject) jsonReceived, getApplicationContext());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            updateJokes = new Intent("UPDATEJOKE");
-            updateJokes.putExtra("instruction","save");
-            updateJokes.putExtra("joke", String.valueOf(jsonReceived));
-            updateJokes.putExtra("actiontotake","sync");
-        } else if (remoteMessage.getData().get("purpose").equals("deletejoke")) {
-            String jokeIDToDelete = remoteMessage.getData().get("jokeid");
-            try {
-                StoreJokesLocally.deleteJoke(jokeIDToDelete,getApplicationContext());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            updateJokes = new Intent("UPDATEJOKE");
-            updateJokes.putExtra("instruction","delete");
-            updateJokes.putExtra("id",jokeIDToDelete);
-            updateJokes.putExtra("actiontotake","sync");
-        }*/
-        //If the purpose is "savejoke" or "deletejoke",call changeJokes
         if(remoteMessage.getData().get("purpose").equals("savejoke") || remoteMessage.getData().get("purpose").equals("deletejoke")){
-            changeJokes(getApplicationContext(),remoteMessage);
+            try {
+                updateJokes = changeJokes(getApplicationContext(),remoteMessage);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         //Send a broadcast if the Intent isn't null
         if(updateJokes != null) {
@@ -66,20 +42,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
-    public static Intent changeJokes(Context context,RemoteMessage remoteMessage){
+    public static Intent changeJokes(Context context,RemoteMessage remoteMessage) throws JSONException {
         Intent updateJokes = null;
         JSONObject jsonReceived = null;
         //Gets the ID from the joke
         String jokeIDToDelete = remoteMessage.getData().get("jokeid");
         //Gets the jokeJSON from Firebase
-        try {
-            jsonReceived = new JSONObject(remoteMessage.getData().get("actualJSON"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         updateJokes = new Intent("UPDATEJOKE");
-        if(remoteMessage.getData().get("purpose").equals("save")){
+        if(remoteMessage.getData().get("purpose").equals("savejoke")){
             //Saves the joke locally
+            jsonReceived = new JSONObject(remoteMessage.getData().get("actualJSON"));
             try {
                 StoreJokesLocally.saveJoke((JSONObject) jsonReceived, context);
             } catch (JSONException e) {
@@ -87,6 +59,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             updateJokes.putExtra("instruction","save");
             updateJokes.putExtra("joke",String.valueOf(jsonReceived));
+            updateJokes.putExtra("position",remoteMessage.getData().get("position"));
         }else if(remoteMessage.getData().get("purpose").equals("deletejoke")){
             //Deletes the joke locally
             try {
