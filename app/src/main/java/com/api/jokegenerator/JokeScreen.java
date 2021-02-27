@@ -20,14 +20,16 @@ public class JokeScreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joke_screen);
-            SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-            ViewPager viewPager = findViewById(R.id.view_pager);
-            viewPager.setAdapter(sectionsPagerAdapter);
-            TabLayout tabs = findViewById(R.id.tabs);
-            tabs.setupWithViewPager(viewPager);
-            tabs.setTabTextColors(Color.parseColor("#808080"),Color.parseColor("#FFFFFF"));
-            int color = Color.parseColor("#b30000");
-            tabs.setSelectedTabIndicatorColor(color);
-            //tabs.getTabAt(0).setText("Voting");
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(sectionsPagerAdapter);
+        TabLayout tabs = findViewById(R.id.tabs);
+        tabs.setupWithViewPager(viewPager);
+        tabs.setTabTextColors(Color.parseColor("#808080"), Color.parseColor("#FFFFFF"));
+        int color = Color.parseColor("#b30000");
+        tabs.setSelectedTabIndicatorColor(color);
+        tabs.getTabAt(0).setIcon(R.drawable.generateicon);
+        tabs.getTabAt(1).setIcon(R.drawable.savedicon);
+        tabs.getTabAt(2).setIcon(R.drawable.groupsicon);
     }
 }

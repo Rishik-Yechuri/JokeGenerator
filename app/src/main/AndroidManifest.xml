@@ -13,7 +13,8 @@
         android:roundIcon="@drawable/laughicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".GroupsFrag"></activity>
+        <activity android:name=".Settings" />
 
         <service
             android:name=".MyFirebaseMessagingService"

@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,11 +44,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class Frag2 extends Fragment {
     View view;
@@ -104,7 +108,6 @@ public class Frag2 extends Fragment {
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(recyclerView);
         adapter = new RecyclerViewAdapter(jokeList, getContext());
         recyclerView.setAdapter(adapter);
-
     }
 
     public class SyncUpdate extends BroadcastReceiver {
@@ -139,31 +142,31 @@ public class Frag2 extends Fragment {
                         }
                         //Saves the joke information and notifies the recycler view of the changes
                         int jokePosition = -5;
-                        if(intent.getExtras().getString("position") != null) {
+                        if (intent.getExtras().getString("position") != null) {
                             jokePosition = Integer.parseInt(intent.getExtras().getString("position"));
                         }
-                        if(jokePosition != -5){
+                        if (jokePosition != -5) {
                             JSONArray updateJokeList = new JSONArray();
-                            for(int i=0;i<jokeList.length();i++){
+                            for (int i = 0; i < jokeList.length(); i++) {
                                 updateJokeList.put(jokeList.get(i));
                             }
-                            for(int i=0;i<jokeList.length();i++){
+                            for (int i = 0; i < jokeList.length(); i++) {
                                 jokeList.remove(0);
                             }
-                            for(int x=0;x<=updateJokeList.length();x++){
-                                if(x==jokePosition){
+                            for (int x = 0; x <= updateJokeList.length(); x++) {
+                                if (x == jokePosition) {
                                     jokeList.put(tempJokeHolder);
                                 }
-                                if(x<updateJokeList.length()) {
+                                if (x < updateJokeList.length()) {
                                     jokeList.put(updateJokeList.get(x));
                                 }
                             }
                             //jokeList.put(Integer.parseInt(intent.getExtras().getString("position")),tempJokeHolder);
                             jokeListIDArray.add(Integer.parseInt(intent.getExtras().getString("position")), Integer.valueOf(tempJokeHolder.getString("id")));
-                        }else{
+                        } else {
                             jokeList.put(tempJokeHolder);
                             jokeListIDArray.add(Integer.valueOf(tempJokeHolder.getString("id")));
-                            jokePosition = jokeList.length()-1;
+                            jokePosition = jokeList.length() - 1;
                         }
                         adapter.notifyItemInserted(jokePosition);
                     }
@@ -233,27 +236,30 @@ public class Frag2 extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            JSONObject currentJokeJSON = null;
+            String groupString = "";
+            int position = 0;
+            int groupPosition = 0;
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
             String jokeID = String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition()));
-            JSONObject currentJokeJSON = null;
             try {
                 deleteJoke(String.valueOf(jokeID));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             //Removes it from the recycler view,and notifies the recycler view
-            // jokeListArray.remove(viewHolder.getAdapterPosition());
-            int position = viewHolder.getAdapterPosition();
+            position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
+            int finalPosition = position;
+            String finalGroup = groupString;
+            int finalGroupPosition = groupPosition;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
-                       /* jokeList.put(position,finalCurrentJokeJSON);
-                        adapter.notifyItemInserted(position);*/
-                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON,position);
+                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
                         listAllTask.storeJoke(getContext());
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -263,14 +269,14 @@ public class Frag2 extends Fragment {
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
         }
+
         @Override
-        public void onChildDraw (Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
+        public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(Color.RED)
                     .addSwipeLeftActionIcon(R.drawable.deleteicon)
                     .create()
                     .decorate();
-
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     };
