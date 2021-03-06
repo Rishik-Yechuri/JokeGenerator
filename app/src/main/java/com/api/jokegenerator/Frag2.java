@@ -99,6 +99,7 @@ public class Frag2 extends Fragment {
         }
         //Initializes the recycler view
         initializeRecyclerView();
+
         return view;
     }
 
@@ -106,7 +107,7 @@ public class Frag2 extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(recyclerView);
-        adapter = new RecyclerViewAdapter(jokeList, getContext());
+        adapter = new RecyclerViewAdapter(jokeList, getContext(),getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
 
@@ -150,7 +151,8 @@ public class Frag2 extends Fragment {
                             for (int i = 0; i < jokeList.length(); i++) {
                                 updateJokeList.put(jokeList.get(i));
                             }
-                            for (int i = 0; i < jokeList.length(); i++) {
+                            int numOfIterations = jokeList.length();
+                            for (int i = 0; i < numOfIterations; i++) {
                                 jokeList.remove(0);
                             }
                             for (int x = 0; x <= updateJokeList.length(); x++) {
@@ -253,8 +255,6 @@ public class Frag2 extends Fragment {
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
             int finalPosition = position;
-            String finalGroup = groupString;
-            int finalGroupPosition = groupPosition;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -272,6 +272,7 @@ public class Frag2 extends Fragment {
 
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                     .addSwipeLeftBackgroundColor(Color.RED)
                     .addSwipeLeftActionIcon(R.drawable.deleteicon)

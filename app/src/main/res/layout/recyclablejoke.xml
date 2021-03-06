@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#292424"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true">
     <Space
         android:layout_height="15dp"
         android:layout_width="match_parent" />
