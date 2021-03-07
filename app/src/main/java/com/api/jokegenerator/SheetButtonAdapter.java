@@ -51,8 +51,7 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             holder.optionText.setTextColor(Color.RED);
         } else if (groups.get(position).split(" ")[0].equals("Remove")) {
             View tempView = holder.mainLayout;
-            tempView.setOnClickListener(removeClicked);
-            //holder.optionText.setOnClickListener(removeClicked);
+            tempView.setOnClickListener(new OptionClicked((String) holder.optionText.getText()));
         } else {
             holder.optionText.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryVariant));
 
@@ -65,8 +64,9 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             returnGroupMap();
             Toast.makeText(mContext,"Remove Clicked:",Toast.LENGTH_SHORT).show();
             String groupName = "";
+            String[] nameParts = v.toString().split(" ");
             for(int x=2;x<= v.toString().split(" ").length;x++){
-                groupName+= v.toString().split(" ")[x];
+                groupName+= nameParts[x];
             }
             ArrayList<String> tempJokeList = jokeGroups.get(groupName);
             tempJokeList.remove(jokeID);
@@ -76,6 +76,36 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     };
 
+    public class OptionClicked implements View.OnClickListener
+    {
+
+        String Text;
+        public OptionClicked(String Text) {
+            this.Text = Text;
+        }
+
+        @Override
+        public void onClick(View v)
+        {
+            HashMap<String,ArrayList<String>> groupMap = returnGroupMap();
+            Toast.makeText(mContext,"Remove Clicked:",Toast.LENGTH_SHORT).show();
+            String groupName = "";
+            String[] nameParts = Text.split(" ");
+            for(int x=2;x< nameParts.length;x++){
+                groupName += nameParts[x];
+            }
+            ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+            if(Text.split(" ")[0].equals("Remove")){
+                tempJokeList.remove(jokeID);
+                jokeGroups.put(groupName,tempJokeList);
+                Log.d("sheetslide","jokeGroups:" + jokeGroups);
+                mContext.getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+            }else if(Text.split(" ")[0].equals("Delete")){
+                Toast.makeText(mContext,"Delete Clicked",Toast.LENGTH_LONG).show();
+            }
+        }
+
+    };
     @Override
     public int getItemCount() {
         return groups.size();
@@ -92,7 +122,7 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         public ViewHolder(View itemView) {
             super(itemView);
             mainLayout = itemView.findViewById(R.id.recyclableSheetLayout);
-            mainLayout.setOnClickListener(removeClicked);
+           // mainLayout.setOnClickListener(removeClicked);
             optionText = itemView.findViewById(R.id.optiontext);
         }
     }
@@ -104,8 +134,12 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             filteredString = filteredString.replace("}","");
             String[] basicSplit = filteredString.split("=");
             String groupName = basicSplit[0];
-            String[] tempGroupIDs = basicSplit[1].split(", ");
-            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+            String[] tempGroupIDs;
+            ArrayList<String> jokesInGroup = new ArrayList<>();
+            if(basicSplit.length>1){
+                tempGroupIDs = basicSplit[1].split(", ");
+                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+            }
             jokeGroups.put(groupName,jokesInGroup);
         }
         return jokeGroups;
