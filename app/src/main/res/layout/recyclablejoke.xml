@@ -5,10 +5,11 @@
     android:id="@+id/recyclableLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#292424"
+    android:background="@drawable/ripple"
     android:orientation="vertical"
-    android:foreground="?attr/selectableItemBackground"
     android:clickable="true">
+    <!--android:theme="@style/AppTheme.BackgroundRipple"
+        android:foreground="?attr/selectableItemBackground"-->
     <Space
         android:layout_height="15dp"
         android:layout_width="match_parent" />

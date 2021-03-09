@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -23,8 +24,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class GroupsFrag extends Fragment {
     View view;
@@ -42,8 +46,25 @@ public class GroupsFrag extends Fragment {
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(groupRecyclerView);
         //Temp array
-        jokeGroups = new ArrayList<>(Arrays.asList("Funny", "Meme", "Diseased", "Cursed"));
-        groupAdapter = new JokeGroupAdapter(jokeGroups, getContext());
+        jokeGroups = new ArrayList<String>();
+        HashMap<String, ArrayList<String>> jokeGroupMap = new HashMap<>();
+        String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap","");
+        String[] splitMap = groupMapString.split("], ");
+        for (int x = 0; x < splitMap.length; x++) {
+            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
+            filteredString = filteredString.replace("}", "");
+            String[] basicSplit = filteredString.split("=");
+            String groupName = basicSplit[0];
+            String[] tempGroupIDs = null;
+            ArrayList<String> jokesInGroup = new ArrayList<>();
+            if (basicSplit.length > 1) {
+                tempGroupIDs = basicSplit[1].split(", ");
+                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+            }
+            jokeGroupMap.put(groupName, jokesInGroup);
+            jokeGroups.add(groupName);
+        }
+        groupAdapter = new JokeGroupAdapter(jokeGroups,jokeGroupMap, getContext());
         groupRecyclerView.setAdapter(groupAdapter);
     }
     ItemTouchHelper.SimpleCallback jokeTouched = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {

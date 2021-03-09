@@ -70,24 +70,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     }
 
-    View.OnClickListener removeClicked = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            returnGroupMap();
-            Toast.makeText(mContext, "Remove Clicked:", Toast.LENGTH_SHORT).show();
-            String groupName = "";
-            String[] nameParts = v.toString().split(" ");
-            for (int x = 2; x <= v.toString().split(" ").length; x++) {
-                groupName += nameParts[x];
-            }
-            ArrayList<String> tempJokeList = jokeGroups.get(groupName);
-            tempJokeList.remove(jokeID);
-            jokeGroups.put(groupName, tempJokeList);
-            Log.d("sheetslide", "jokeGroups:" + jokeGroups);
-            mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-        }
-    };
-
     public class OptionClicked implements View.OnClickListener {
 
         String Text;
@@ -103,17 +85,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             HashMap<String, ArrayList<String>> groupMap = returnGroupMap();
             String groupName = "";
             String[] nameParts = Text.split(" ");
-          /*  for (int x = 2; x < nameParts.length; x++) {
-                groupName += nameParts[x];
-            }*/
-           /* if (Text.split(" ")[0].equals("Remove")) {
-                tempJokeList.remove(jokeID);
-                jokeGroups.put(groupName, tempJokeList);
-                Log.d("sheetslide", "jokeGroups:" + jokeGroups);
-                mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-            } else if (Text.split(" ")[0].equals("Delete")) {
-                Toast.makeText(mContext, "Delete Clicked", Toast.LENGTH_LONG).show();
-            }*/
             if (firstWord.equals("Remove")) {
                 for (int x = 2; x < nameParts.length; x++) {
                     groupName += nameParts[x];
@@ -180,7 +151,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             super(itemView);
             this.SheetClickListener = SheetClickListener;
             mainLayout = itemView.findViewById(R.id.recyclableSheetLayout);
-            // mainLayout.setOnClickListener(removeClicked);
             optionText = itemView.findViewById(R.id.optiontext);
         }
     }

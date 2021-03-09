@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -22,6 +24,7 @@ public class JokeScreen extends AppCompatActivity {
         setContentView(R.layout.activity_joke_screen);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager.setOnTouchListener((v, event) -> true);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);

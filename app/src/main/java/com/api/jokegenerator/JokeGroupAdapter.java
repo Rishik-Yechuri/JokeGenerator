@@ -1,6 +1,9 @@
 package com.api.jokegenerator;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,16 +18,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.security.acl.Group;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.ViewHolder> {
     //Stores all the jokes to be displayed
+    HashMap<String, ArrayList<String>> groupMap;
     ArrayList<String> groupNames = new ArrayList<>();
     Context mContext;
 
-    public JokeGroupAdapter(ArrayList<String> groupNames, Context context) {
+    public JokeGroupAdapter(ArrayList<String> groupNames, HashMap<String, ArrayList<String>> groupMap, Context context) {
         //Initializes variables
         this.groupNames = groupNames;
+        this.groupMap = groupMap;
         mContext = context;
     }
 
@@ -39,7 +46,8 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //Sets the jokes text
-            holder.jokeText.setText(groupNames.get(position));
+        holder.jokeText.setText(groupNames.get(position));
+        holder.mainLayout.setOnClickListener(groupClicked);
     }
 
     @Override
@@ -57,4 +65,14 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
             jokeText = itemView.findViewById(R.id.JokeText);
         }
     }
+
+    View.OnClickListener groupClicked = new View.OnClickListener() {
+        ;
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(mContext, GroupedJokes.class);
+            mContext.startActivity(intent);
+        }
+    };
 }

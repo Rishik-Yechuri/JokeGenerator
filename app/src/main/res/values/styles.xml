@@ -25,4 +25,8 @@
         <item name="android:textColor">@color/colorPrimaryVariant</item>
         <item name="android:itemBackground">@color/colorPrimary</item>
     </style>
+    <style name="AppTheme.BackgroundRipple">
+    <item name="colorControlHighlight">@color/colorAccent</item>
+
+</style>
 </resources>
