@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class JokeBottomSheet extends BottomSheetDialogFragment {
+public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetButtonAdapter.DismissSheet {
     View v;
     RecyclerView sheetRecyclerView;
     SheetButtonAdapter sheetAdapter;
@@ -32,6 +32,7 @@ public class JokeBottomSheet extends BottomSheetDialogFragment {
         v = inflater.inflate(R.layout.jokebottomsheet,
                 container, false);
         initializeSheetRecycler();
+        //super.dismiss();
         //Button okButton = v.findViewById(R.id.okbutton);
         //okButton.setOnClickListener(jokeClicked);
 
@@ -45,10 +46,10 @@ public class JokeBottomSheet extends BottomSheetDialogFragment {
         String currentGroup = "";
         ArrayList<String> otherGroups = new ArrayList<>();
        /* HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
-        holdStuff.put("Funny",new ArrayList<Integer>(Arrays.asList(81)));
+        holdStuff.put("Funny",new ArrayList<Integer>(Arrays.asList(268)));
         holdStuff.put("Hey",new ArrayList<Integer>(Arrays.asList(59,69)));
-        holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList(195,244)));*/
-        //getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(holdStuff)).apply();
+        holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList(195,244)));
+        getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(holdStuff)).apply();*/
         String holdMap = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
         String[] splitMap = holdMap.split("], ");
         for (int x = 0; x < splitMap.length; x++) {
@@ -65,7 +66,7 @@ public class JokeBottomSheet extends BottomSheetDialogFragment {
             jokeGroups.put(groupName, jokesInGroup);
             if (jokesInGroup.contains(String.valueOf(this.getArguments().getString("id")))) {
                 currentGroup = groupName;
-            } else {
+            } else if(!groupName.equals("")){
                 otherGroups.add(groupName);
             }
         }
@@ -76,17 +77,21 @@ public class JokeBottomSheet extends BottomSheetDialogFragment {
         }
         tempArraylist.add("Delete");
         for (int x = 0; x < otherGroups.size(); x++) {
-            tempArraylist.add("Add to " + otherGroups.get(x));
+            tempArraylist.add("Move to " + otherGroups.get(x));
         }
-        sheetAdapter = new SheetButtonAdapter(tempArraylist, getContext());
+        sheetAdapter = new SheetButtonAdapter(tempArraylist, getContext(),this);
         sheetAdapter.setJokeID(this.getArguments().getString("id"));
         sheetRecyclerView.setAdapter(sheetAdapter);
     }
-
     private View.OnClickListener jokeClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Toast.makeText(getContext(), "Sheet Clicked", Toast.LENGTH_SHORT).show();
         }
     };
+
+    @Override
+    public void DismissSheet() {
+        super.dismiss();
+    }
 }

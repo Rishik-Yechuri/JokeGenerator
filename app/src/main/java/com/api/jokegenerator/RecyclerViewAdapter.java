@@ -57,17 +57,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.mainLayout.setOnLongClickListener(new jokeClicked(id));
     }
 
-    /*  private View.OnLongClickListener jokeClicked = new View.OnLongClickListener() {
-          int id;
-          public jokeClicked(String id){}
-          @Override
-          public boolean onLongClick(View v) {
-              JokeBottomSheet bottomSheet = new JokeBottomSheet();
-              bottomSheet.setArguments();
-              bottomSheet.show(parentFrag,"MainSheet");
-              return false;
-          }
-      };*/
     public class jokeClicked implements View.OnLongClickListener {
         String id;
 

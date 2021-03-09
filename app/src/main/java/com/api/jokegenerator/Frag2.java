@@ -60,9 +60,8 @@ public class Frag2 extends Fragment {
     //_updateJokes is a BroadcastReceiver that waits for messages from other activities
     BroadcastReceiver _updateJokes;
     //Stores jokes,and their IDs
-    JSONArray jokeList;
-    ArrayList<String> jokeListArray = new ArrayList<>();
-    ArrayList<Integer> jokeListIDArray = new ArrayList<>();
+    public static JSONArray jokeList;
+    public static ArrayList<Integer> jokeListIDArray = new ArrayList<>();
     //Used for the RecycleView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
@@ -110,7 +109,6 @@ public class Frag2 extends Fragment {
         adapter = new RecyclerViewAdapter(jokeList, getContext(),getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
-
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -245,7 +243,7 @@ public class Frag2 extends Fragment {
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
             String jokeID = String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition()));
             try {
-                deleteJoke(String.valueOf(jokeID));
+                deleteJoke(String.valueOf(jokeID),getContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -287,7 +285,7 @@ public class Frag2 extends Fragment {
     }
 
     //Calls firebase to delete the joke
-    public void deleteJoke(String id) throws JSONException {
+    public static void deleteJoke(String id,Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -297,7 +295,7 @@ public class Frag2 extends Fragment {
                         if (task.isSuccessful()) {
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
-                            data.put("fcmtoken", MyFirebaseMessagingService.getToken(getActivity()));
+                            data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
                             data.put("jokeid", id);
                             FirebaseFunctions.getInstance()
                                     .getHttpsCallable("deleteJoke")
