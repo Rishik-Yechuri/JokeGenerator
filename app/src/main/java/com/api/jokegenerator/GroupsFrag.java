@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -35,18 +38,30 @@ public class GroupsFrag extends Fragment {
     ArrayList<String> jokeGroups;
     RecyclerView groupRecyclerView;
     JokeGroupAdapter groupAdapter;
+    HashMap<String, ArrayList<String>> jokeGroupMap;
+    BroadcastReceiver _updateGroups;
+
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_groups_frag, container, false);
         initializeRecyclerView();
+        _updateGroups = new GroupUpdate();
+        IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
+        getActivity().registerReceiver(_updateGroups, intentFilter);
         return view;
+    }
+    public class GroupUpdate extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateGroups();
+        }
     }
     private void initializeRecyclerView() {
         groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(groupRecyclerView);
         //Temp array
-        jokeGroups = new ArrayList<String>();
+   /*     jokeGroups = new ArrayList<String>();
         HashMap<String, ArrayList<String>> jokeGroupMap = new HashMap<>();
         String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap","");
         String[] splitMap = groupMapString.split("], ");
@@ -61,12 +76,42 @@ public class GroupsFrag extends Fragment {
                 tempGroupIDs = basicSplit[1].split(", ");
                 jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
             }
-            jokeGroupMap.put(groupName, jokesInGroup);
-            jokeGroups.add(groupName);
-        }
-        groupAdapter = new JokeGroupAdapter(jokeGroups,jokeGroupMap, getContext());
+            if(!groupName.equals("")){
+                jokeGroupMap.put(groupName, jokesInGroup);
+                jokeGroups.add(groupName);
+            }
+        }*/
+        jokeGroups = new ArrayList<String>();
+        jokeGroupMap = new HashMap<>();
+        groupAdapter = new JokeGroupAdapter(jokeGroups, jokeGroupMap, getContext());
         groupRecyclerView.setAdapter(groupAdapter);
+        updateGroups();
     }
+
+    public void updateGroups() {
+        jokeGroups = new ArrayList<String>();
+        jokeGroupMap = new HashMap<>();
+        String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
+        String[] splitMap = groupMapString.split("], ");
+        for (int x = 0; x < splitMap.length; x++) {
+            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
+            filteredString = filteredString.replace("}", "");
+            String[] basicSplit = filteredString.split("=");
+            String groupName = basicSplit[0];
+            String[] tempGroupIDs = null;
+            ArrayList<String> jokesInGroup = new ArrayList<>();
+            if (basicSplit.length > 1) {
+                tempGroupIDs = basicSplit[1].split(", ");
+                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+            }
+            if (!groupName.equals("")) {
+                jokeGroupMap.put(groupName, jokesInGroup);
+                jokeGroups.add(groupName);
+            }
+        }
+        groupAdapter.notifyDataSetChanged();
+    }
+
     ItemTouchHelper.SimpleCallback jokeTouched = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -79,25 +124,26 @@ public class GroupsFrag extends Fragment {
             String groupString = "";
             int position = 0;
             int groupPosition = 0;
-                //Remove the group
-                groupPosition = viewHolder.getAdapterPosition();
-                groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
-                groupAdapter.notifyDataSetChanged();
-                Toast.makeText(getContext(), "Group Removed", Toast.LENGTH_SHORT).show();
+            //Remove the group
+            groupPosition = viewHolder.getAdapterPosition();
+            groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
+            groupAdapter.notifyDataSetChanged();
+            Toast.makeText(getContext(), "Group Removed", Toast.LENGTH_SHORT).show();
             String finalGroup = groupString;
             int finalGroupPosition = groupPosition;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        //Undo deleting the group
-                        jokeGroups.add(finalGroupPosition,finalGroup);
-                        groupAdapter.notifyDataSetChanged();
-                        Toast.makeText(getContext(), "Undo Group Remove", Toast.LENGTH_SHORT).show();
-                    }
+                    //Undo deleting the group
+                    jokeGroups.add(finalGroupPosition, finalGroup);
+                    groupAdapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Undo Group Remove", Toast.LENGTH_SHORT).show();
+                }
             });
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
         }
+
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)

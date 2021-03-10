@@ -62,7 +62,7 @@ public class Frag2 extends Fragment {
     //Stores jokes,and their IDs
     public static JSONArray jokeList;
     public static ArrayList<Integer> jokeListIDArray = new ArrayList<>();
-    //Used for the RecycleView
+    //Used for the RecyclerView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
 

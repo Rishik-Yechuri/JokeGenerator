@@ -45,10 +45,10 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
         String currentGroup = "";
         ArrayList<String> otherGroups = new ArrayList<>();
-       /* HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
+      /*HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
         holdStuff.put("Funny",new ArrayList<Integer>(Arrays.asList(268)));
         holdStuff.put("Hey",new ArrayList<Integer>(Arrays.asList(59,69)));
-        holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList(195,244)));
+        holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList(93,222)));
         getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(holdStuff)).apply();*/
         String holdMap = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
         String[] splitMap = holdMap.split("], ");

@@ -94,6 +94,8 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
                 mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                Intent updategroup = new Intent("UPDATEGROUP");
+                mContext.sendBroadcast(updategroup);
             } else if (firstWord.equals("Delete")) {
                 Intent deleteJoke = new Intent("UPDATEJOKE");
                 try {

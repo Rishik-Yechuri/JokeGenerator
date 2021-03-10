@@ -73,6 +73,7 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, GroupedJokes.class);
                 intent.putExtra("groupname",str);
+                intent.putExtra("jokesingroup",groupMap.get(str));
                 mContext.startActivity(intent);
                 ((Activity)mContext).overridePendingTransition(R.anim.slide_in_right,R.anim.no_animation);
             }
