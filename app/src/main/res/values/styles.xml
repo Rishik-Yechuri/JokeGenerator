@@ -21,12 +21,23 @@
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@color/colorPrimaryVariant</item>
     </style>
+
     <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:textColor">@color/colorPrimaryVariant</item>
         <item name="android:itemBackground">@color/colorPrimary</item>
     </style>
-    <style name="AppTheme.BackgroundRipple">
-    <item name="colorControlHighlight">@color/colorAccent</item>
 
-</style>
+    <style name="AppTheme.BackgroundRipple">
+        <item name="colorControlHighlight">@color/colorAccent</item>
+    </style>
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+    <style name="Toolbar" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
+        <!-- color used by navigation icon and overflow icon -->
+        <item name="colorOnPrimary">@color/colorPrimaryVariant</item>
+    </style>
 </resources>

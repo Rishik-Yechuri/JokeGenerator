@@ -13,7 +13,7 @@
         android:roundIcon="@drawable/laughicon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GroupedJokes"></activity>
+        <activity android:name=".GroupedJokes" android:parentActivityName=".JokeScreen"></activity>
         <activity android:name=".GroupsFrag" />
         <activity android:name=".Settings" />
 

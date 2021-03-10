@@ -1,5 +1,6 @@
 package com.api.jokegenerator;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +49,7 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //Sets the jokes text
         holder.jokeText.setText(groupNames.get(position));
-        holder.mainLayout.setOnClickListener(groupClicked);
+        groupClicked(holder.mainLayout,groupNames.get(position));
     }
 
     @Override
@@ -65,14 +67,15 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
             jokeText = itemView.findViewById(R.id.JokeText);
         }
     }
-
-    View.OnClickListener groupClicked = new View.OnClickListener() {
-        ;
-
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(mContext, GroupedJokes.class);
-            mContext.startActivity(intent);
-        }
-    };
+    private void groupClicked(View view,String str){
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, GroupedJokes.class);
+                intent.putExtra("groupname",str);
+                mContext.startActivity(intent);
+                ((Activity)mContext).overridePendingTransition(R.anim.slide_in_right,R.anim.no_animation);
+            }
+        });
+    }
 }
