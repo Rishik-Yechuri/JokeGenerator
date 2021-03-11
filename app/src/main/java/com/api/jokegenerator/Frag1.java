@@ -418,13 +418,10 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
                                         @Override
                                         public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                                            Log.d("gooff", ".then");
                                             //HashMap result = (HashMap) task.getResult().getData();
                                             //JSONObject res = new JSONObject(result);
-                                            Log.d("gooff", "set");
                                             downloadButton.setBackgroundResource(R.drawable.downloadicon);
                                             jokeSaved = false;
-                                            Log.d("gooff", "set really");
                                             return null;
                                         }
                                     });
@@ -472,10 +469,7 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
                 .filter(new Predicate<CheckIfJokeSavedTask>() {
                     @Override
                     public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
-                        Log.d("somethingbrokedebug", "In test");
                         jokeSaved = jokeSavedTask.checkIfStored();
-                        Log.d("somethingbrokedebug", "jokeSaved:" + jokeSaved);
-                        //downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                         return true;
                     }
                 })

@@ -177,14 +177,20 @@ public class Frag2 extends Fragment {
             //Deletes if the instruction is "delete"
             else if (instruction.equals("delete")) {
                 int id = Integer.parseInt(intent.getExtras().getString("id"));
-                int index = jokeListIDArray.indexOf(id);
+                int index = -1;
+                if(jokeListIDArray.size()>0){
+                     index = jokeListIDArray.indexOf(id);
+                }
+               // int index = jokeListIDArray.indexOf(id);
                 if (index != -1) {
                     //Deletes the joke and notifies the recycler view
                     jokeListIDArray.remove(index);
                     jokeList.remove(index);
                     //jokeListArray.remove(index);
-                    adapter.notifyDataSetChanged();
                 }
+                jokeList.length();
+                jokeList.remove(0);
+                adapter.notifyDataSetChanged();
             }
             //showSync();
         }
@@ -250,12 +256,36 @@ public class Frag2 extends Fragment {
             //Removes it from the recycler view,and notifies the recycler view
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
+            HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getContext(),jokeGroups);
+            String groupName = "";
+            for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
+                String key = entry.getKey();
+                ArrayList<String> jokeIDs = entry.getValue();
+                if (jokeIDs.contains(jokeID)) {
+                    groupName = key;
+                }
+            }
+            if (!groupName.equals("")) {
+                ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+                tempJokeList.remove(jokeID);
+                jokeGroups.put(groupName, tempJokeList);
+            }
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
             int finalPosition = position;
+            String finalGroupName = groupName;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(!finalGroupName.equals("")){
+                        ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
+                        jokeListAdd.add(jokeID);
+                        jokeGroups.put(finalGroupName, jokeListAdd);
+                        getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                        Intent updategroup = new Intent("UPDATEGROUP");
+                        getContext().sendBroadcast(updategroup);
+                    }
                     try {
                         ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
                         listAllTask.storeJoke(getContext());
@@ -266,6 +296,11 @@ public class Frag2 extends Fragment {
             });
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
+            if(!finalGroupName.equals("")) {
+                getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                Intent updategroup = new Intent("UPDATEGROUP");
+                getContext().sendBroadcast(updategroup);
+            }
         }
 
         @Override

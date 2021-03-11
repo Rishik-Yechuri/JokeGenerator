@@ -80,9 +80,10 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
 
         @Override
         public void onClick(View v) {
+            Intent updategroup = new Intent("UPDATEGROUP");
             String firstWord = Text.split(" ")[0];
             SheetClickListener.DismissSheet();
-            HashMap<String, ArrayList<String>> groupMap = returnGroupMap();
+            HashMap<String, ArrayList<String>> groupMap = returnGroupMap(mContext,jokeGroups);
             String groupName = "";
             String[] nameParts = Text.split(" ");
             if (firstWord.equals("Remove")) {
@@ -90,44 +91,47 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                     groupName += nameParts[x];
                 }
                 ArrayList<String> tempJokeList = jokeGroups.get(groupName);
-                Toast.makeText(mContext, "Remove Clicked:", Toast.LENGTH_SHORT).show();
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
-                mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-                Intent updategroup = new Intent("UPDATEGROUP");
-                mContext.sendBroadcast(updategroup);
-            } else if (firstWord.equals("Delete")) {
-                Intent deleteJoke = new Intent("UPDATEJOKE");
-                try {
-                    Frag2.deleteJoke(jokeID,mContext);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                deleteJoke.putExtra("instruction","delete");
-                deleteJoke.putExtra("id",String.valueOf(jokeID));
-                mContext.sendBroadcast(deleteJoke);
-            } else if (firstWord.equals("Move")) {
+                updategroup.putExtra("idtoremove",jokeID);
+            } else {
                 for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
                     String key = entry.getKey();
                     ArrayList<String> jokeIDs = entry.getValue();
-                    if(jokeIDs.contains(jokeID)){
+                    if (jokeIDs.contains(jokeID)) {
                         groupName = key;
                     }
                 }
-                if(!groupName.equals("")){
+                if (!groupName.equals("")) {
                     ArrayList<String> tempJokeList = jokeGroups.get(groupName);
                     tempJokeList.remove(jokeID);
                     jokeGroups.put(groupName, tempJokeList);
                 }
-                groupName = "";
-                for (int x = 2; x < nameParts.length; x++) {
-                    groupName += nameParts[x];
+                if (firstWord.equals("Delete")) {
+                    Intent deleteJoke = new Intent("UPDATEJOKE");
+                    try {
+                        Frag2.deleteJoke(jokeID, mContext);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    deleteJoke.putExtra("instruction", "delete");
+                    deleteJoke.putExtra("id", String.valueOf(jokeID));
+                    mContext.sendBroadcast(deleteJoke);
+                    updategroup.putExtra("idtoremove",jokeID);
+                } else if (firstWord.equals("Move")) {
+                    groupName = "";
+                    for (int x = 2; x < nameParts.length; x++) {
+                        groupName += nameParts[x];
+                    }
+                    ArrayList<String> jokeListAdd = jokeGroups.get(groupName);
+                    jokeListAdd.add(jokeID);
+                    jokeGroups.put(groupName, jokeListAdd);
+                    updategroup.putExtra("idtoremove",jokeID);
                 }
-                ArrayList<String> jokeListAdd = jokeGroups.get(groupName);
-                jokeListAdd.add(jokeID);
-                jokeGroups.put(groupName, jokeListAdd);
-                mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
             }
+            mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+            updategroup.putExtra("id",jokeID);
+            mContext.sendBroadcast(updategroup);
         }
     }
 
@@ -157,8 +161,8 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     }
 
-    public HashMap<String, ArrayList<String>> returnGroupMap() {
-        String holdMap = mContext.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
+    public static HashMap<String, ArrayList<String>> returnGroupMap(Context context, HashMap<String, ArrayList<String>> jokeGroups) {
+        String holdMap = context.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
         String[] splitMap = holdMap.split("], ");
         for (int x = 0; x < splitMap.length; x++) {
             String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");

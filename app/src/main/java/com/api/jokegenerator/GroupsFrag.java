@@ -53,34 +53,13 @@ public class GroupsFrag extends Fragment {
     public class GroupUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateGroups();
+            updateGroups(/*intent.getExtras().getString("id")*/);
         }
     }
     private void initializeRecyclerView() {
         groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(groupRecyclerView);
-        //Temp array
-   /*     jokeGroups = new ArrayList<String>();
-        HashMap<String, ArrayList<String>> jokeGroupMap = new HashMap<>();
-        String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap","");
-        String[] splitMap = groupMapString.split("], ");
-        for (int x = 0; x < splitMap.length; x++) {
-            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
-            filteredString = filteredString.replace("}", "");
-            String[] basicSplit = filteredString.split("=");
-            String groupName = basicSplit[0];
-            String[] tempGroupIDs = null;
-            ArrayList<String> jokesInGroup = new ArrayList<>();
-            if (basicSplit.length > 1) {
-                tempGroupIDs = basicSplit[1].split(", ");
-                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
-            }
-            if(!groupName.equals("")){
-                jokeGroupMap.put(groupName, jokesInGroup);
-                jokeGroups.add(groupName);
-            }
-        }*/
         jokeGroups = new ArrayList<String>();
         jokeGroupMap = new HashMap<>();
         groupAdapter = new JokeGroupAdapter(jokeGroups, jokeGroupMap, getContext());
@@ -89,8 +68,8 @@ public class GroupsFrag extends Fragment {
     }
 
     public void updateGroups() {
-        jokeGroups = new ArrayList<String>();
-        jokeGroupMap = new HashMap<>();
+        jokeGroups.clear();
+        jokeGroupMap.clear();
         String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
         String[] splitMap = groupMapString.split("], ");
         for (int x = 0; x < splitMap.length; x++) {
@@ -120,9 +99,7 @@ public class GroupsFrag extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            JSONObject currentJokeJSON = null;
             String groupString = "";
-            int position = 0;
             int groupPosition = 0;
             //Remove the group
             groupPosition = viewHolder.getAdapterPosition();

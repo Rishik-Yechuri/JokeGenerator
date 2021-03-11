@@ -8,6 +8,10 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -31,6 +36,8 @@ public class GroupedJokes extends AppCompatActivity {
     ArrayList<String> savedJokeIDs;
     JSONArray allJokes = new JSONArray();
     JSONArray jokeList = new JSONArray();
+    BroadcastReceiver _updateJokes;
+    Bundle extras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +46,22 @@ public class GroupedJokes extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryVariant));
         setSupportActionBar(toolbar);
-        Bundle extras = getIntent().getExtras();
+        extras = getIntent().getExtras();
         getSupportActionBar().setTitle(extras.getString("groupname"));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        savedJokeIDs = extras.getStringArrayList("jokesingroup");
         try {
             allJokes = StoreJokesLocally.returnSavedJokes(getApplicationContext());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        for(int x=0;x<allJokes.length();x++){
+        initializeRecyclerView();
+        updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), null);
+        IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
+        //Sets up stuff for the BroadcastReceiver
+        _updateJokes = new GroupUpdate();
+        getApplicationContext().registerReceiver(_updateJokes, intentFilter);
+        //savedJokeIDs = extras.getStringArrayList("jokesingroup");
+       /* for(int x=0;x<allJokes.length();x++){
             try {
                 JSONObject currentJoke = allJokes.getJSONObject(x);
                 if(savedJokeIDs.contains(currentJoke.getString("id"))){
@@ -57,14 +70,14 @@ public class GroupedJokes extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        }
-        initializeRecyclerView();
+        }*/
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         return goBack();
     }
+
     @Override
     public void onBackPressed() {
         goBack();
@@ -75,6 +88,52 @@ public class GroupedJokes extends AppCompatActivity {
         finish();
         overridePendingTransition(0, R.anim.slide_out_right);
         return true;
+    }
+
+    public class GroupUpdate extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), intent.getStringExtra("idtoremove"));
+        }
+    }
+
+    public void updateJokesInGroup(ArrayList<String> savedIDs, String tempGroupName, String idToRemove) {
+        int lengthOfList = jokeList.length();
+        for (int x = 0; x < lengthOfList; x++) {
+            jokeList.remove(0);
+        }
+        String groupMapString = getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
+        String[] splitMap = groupMapString.split("], ");
+        for (int x = 0; x < splitMap.length; x++) {
+            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
+            filteredString = filteredString.replace("}", "");
+            String[] basicSplit = filteredString.split("=");
+            String groupName = basicSplit[0];
+            String[] tempGroupIDs = null;
+            ArrayList<String> jokesInGroup = new ArrayList<>();
+            if (basicSplit.length > 1) {
+                tempGroupIDs = basicSplit[1].split(", ");
+                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+            }
+        }
+        savedJokeIDs = savedIDs;
+        for (int x = 0; x < allJokes.length(); x++) {
+            try {
+                JSONObject currentJoke = allJokes.getJSONObject(x);
+                if (savedJokeIDs.contains(currentJoke.getString("id"))) {
+                    if (idToRemove != null && currentJoke.getString("id").equals(idToRemove)) {
+                         savedJokeIDs.remove(currentJoke.getString("id"));
+                    } else {
+                        jokeList.put(currentJoke);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        Frag2.jokeList = jokeList;
+        adapter.notifyDataSetChanged();
     }
 
     private void initializeRecyclerView() {
@@ -122,6 +181,7 @@ public class GroupedJokes extends AppCompatActivity {
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
         }
+
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive).addSwipeLeftBackgroundColor(Color.RED).addSwipeLeftActionIcon(R.drawable.deleteicon).create().decorate();
