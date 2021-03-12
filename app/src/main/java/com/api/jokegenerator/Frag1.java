@@ -395,6 +395,11 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
     }
 
     public void deleteJoke() throws JSONException {
+        String groupName = Frag2.updateGroupName(jsonObject.getString("id"),getContext());
+        Frag2.updateJokeGroups(groupName,jsonObject.getString("id"),Frag2.returnJokeGroups());
+        getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(Frag2.returnJokeGroups())).apply();
+        Intent updategroup = new Intent("UPDATEGROUP");
+        getContext().sendBroadcast(updategroup);
         StoreJokesLocally.deleteJoke(jokeJSON.getString("id"),getActivity());
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();

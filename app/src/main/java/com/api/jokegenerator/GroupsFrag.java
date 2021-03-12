@@ -104,8 +104,9 @@ public class GroupsFrag extends Fragment {
             //Remove the group
             groupPosition = viewHolder.getAdapterPosition();
             groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
+            ArrayList<String> jokesSavedInGroup = jokeGroupMap.remove(groupString);
+            getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap",String.valueOf(jokeGroupMap)).apply();
             groupAdapter.notifyDataSetChanged();
-            Toast.makeText(getContext(), "Group Removed", Toast.LENGTH_SHORT).show();
             String finalGroup = groupString;
             int finalGroupPosition = groupPosition;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
@@ -113,7 +114,9 @@ public class GroupsFrag extends Fragment {
                 public void onClick(View v) {
                     //Undo deleting the group
                     jokeGroups.add(finalGroupPosition, finalGroup);
+                    jokeGroupMap.put(finalGroup,jokesSavedInGroup);
                     groupAdapter.notifyDataSetChanged();
+                    getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap",String.valueOf(jokeGroupMap)).apply();
                     Toast.makeText(getContext(), "Undo Group Remove", Toast.LENGTH_SHORT).show();
                 }
             });

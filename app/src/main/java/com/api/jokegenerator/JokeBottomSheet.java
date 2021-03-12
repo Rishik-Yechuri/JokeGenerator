@@ -45,7 +45,7 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
         String currentGroup = "";
         ArrayList<String> otherGroups = new ArrayList<>();
-        /*HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
+       /* HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
         holdStuff.put("Funny",new ArrayList<Integer>(Arrays.asList()));
         holdStuff.put("Hey",new ArrayList<Integer>(Arrays.asList()));
         holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList()));

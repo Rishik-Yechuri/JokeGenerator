@@ -8,17 +8,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Space;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +39,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -65,6 +59,7 @@ public class Frag2 extends Fragment {
     //Used for the RecyclerView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
+    static HashMap<String, ArrayList<String>> jokeGroups;
 
     @Nullable
     @Override
@@ -255,21 +250,22 @@ public class Frag2 extends Fragment {
             //Removes it from the recycler view,and notifies the recycler view
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
-            HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+            jokeGroups = new HashMap<>();
             HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getContext(), jokeGroups);
-            String groupName = "";
-            for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
+            String groupName = updateGroupName(jokeID,getContext());
+            updateJokeGroups(groupName,jokeID,jokeGroups);
+            /*for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
                 String key = entry.getKey();
                 ArrayList<String> jokeIDs = entry.getValue();
                 if (jokeIDs.contains(jokeID)) {
                     groupName = key;
                 }
-            }
-            if (!groupName.equals("")) {
+            }*/
+            /*if (!groupName.equals("")) {
                 ArrayList<String> tempJokeList = jokeGroups.get(groupName);
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
-            }
+            }*/
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
             int finalPosition = position;
@@ -317,7 +313,29 @@ public class Frag2 extends Fragment {
     public static float convertDpToPixel(float dp, Context context) {
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
-
+    public static String updateGroupName(String jokeID,Context context){
+        jokeGroups = new HashMap<>();
+        HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(context, jokeGroups);
+        String groupName = "";
+        for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
+            String key = entry.getKey();
+            ArrayList<String> jokeIDs = entry.getValue();
+            if (jokeIDs.contains(jokeID)) {
+                groupName = key;
+            }
+        }
+       return groupName;
+    }
+    public static void updateJokeGroups(String groupName,String jokeID,HashMap<String, ArrayList<String>> jokeGroups){
+        if (!groupName.equals("")) {
+            ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+            tempJokeList.remove(jokeID);
+            jokeGroups.put(groupName, tempJokeList);
+        }
+    }
+    public static HashMap<String, ArrayList<String>> returnJokeGroups(){
+        return jokeGroups;
+    }
     //Calls firebase to delete the joke
     public static void deleteJoke(String id, Context context) throws JSONException {
         final String[] idToken = {""};
