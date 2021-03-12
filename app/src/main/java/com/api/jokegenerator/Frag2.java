@@ -106,9 +106,10 @@ public class Frag2 extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(recyclerView);
-        adapter = new RecyclerViewAdapter(jokeList, getContext(),getFragmentManager());
+        adapter = new RecyclerViewAdapter(jokeList, getContext(), getFragmentManager());
         recyclerView.setAdapter(adapter);
     }
+
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -178,10 +179,10 @@ public class Frag2 extends Fragment {
             else if (instruction.equals("delete")) {
                 int id = Integer.parseInt(intent.getExtras().getString("id"));
                 int index = -1;
-                if(jokeListIDArray.size()>0){
-                     index = jokeListIDArray.indexOf(id);
+                if (jokeListIDArray.size() > 0) {
+                    index = jokeListIDArray.indexOf(id);
                 }
-               // int index = jokeListIDArray.indexOf(id);
+                // int index = jokeListIDArray.indexOf(id);
                 if (index != -1) {
                     //Deletes the joke and notifies the recycler view
                     jokeListIDArray.remove(index);
@@ -189,7 +190,7 @@ public class Frag2 extends Fragment {
                     //jokeListArray.remove(index);
                 }
                 jokeList.length();
-                jokeList.remove(0);
+               // jokeList.remove(0);
                 adapter.notifyDataSetChanged();
             }
             //showSync();
@@ -243,13 +244,11 @@ public class Frag2 extends Fragment {
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             JSONObject currentJokeJSON = null;
-            String groupString = "";
             int position = 0;
-            int groupPosition = 0;
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
             String jokeID = String.valueOf(jokeListIDArray.remove(viewHolder.getAdapterPosition()));
             try {
-                deleteJoke(String.valueOf(jokeID),getContext());
+                deleteJoke(String.valueOf(jokeID), getContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -257,7 +256,7 @@ public class Frag2 extends Fragment {
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
             HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
-            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getContext(),jokeGroups);
+            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getContext(), jokeGroups);
             String groupName = "";
             for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
                 String key = entry.getKey();
@@ -278,7 +277,7 @@ public class Frag2 extends Fragment {
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(!finalGroupName.equals("")){
+                    if (!finalGroupName.equals("")) {
                         ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
                         jokeListAdd.add(jokeID);
                         jokeGroups.put(finalGroupName, jokeListAdd);
@@ -296,7 +295,7 @@ public class Frag2 extends Fragment {
             });
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
-            if(!finalGroupName.equals("")) {
+            if (!finalGroupName.equals("")) {
                 getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
                 Intent updategroup = new Intent("UPDATEGROUP");
                 getContext().sendBroadcast(updategroup);
@@ -320,7 +319,7 @@ public class Frag2 extends Fragment {
     }
 
     //Calls firebase to delete the joke
-    public static void deleteJoke(String id,Context context) throws JSONException {
+    public static void deleteJoke(String id, Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();

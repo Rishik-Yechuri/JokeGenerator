@@ -25,10 +25,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
-import static java.security.AccessController.getContext;
+import static com.api.jokegenerator.Frag2.returnJokeString;
 
 public class GroupedJokes extends AppCompatActivity {
     RecyclerView recyclerView;
@@ -37,6 +38,7 @@ public class GroupedJokes extends AppCompatActivity {
     JSONArray allJokes = new JSONArray();
     JSONArray jokeList = new JSONArray();
     BroadcastReceiver _updateJokes;
+    BroadcastReceiver _syncUpdate;
     Bundle extras;
 
     @Override
@@ -60,17 +62,10 @@ public class GroupedJokes extends AppCompatActivity {
         //Sets up stuff for the BroadcastReceiver
         _updateJokes = new GroupUpdate();
         getApplicationContext().registerReceiver(_updateJokes, intentFilter);
-        //savedJokeIDs = extras.getStringArrayList("jokesingroup");
-       /* for(int x=0;x<allJokes.length();x++){
-            try {
-                JSONObject currentJoke = allJokes.getJSONObject(x);
-                if(savedJokeIDs.contains(currentJoke.getString("id"))){
-                    jokeList.put(currentJoke);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }*/
+        IntentFilter intentFilter2 = new IntentFilter("UPDATEJOKE");
+        //Sets up stuff for the BroadcastReceiver
+        _syncUpdate = new SyncUpdate();
+        getApplication().registerReceiver(_syncUpdate, intentFilter2);
     }
 
     @Override
@@ -89,7 +84,68 @@ public class GroupedJokes extends AppCompatActivity {
         overridePendingTransition(0, R.anim.slide_out_right);
         return true;
     }
-
+    public class SyncUpdate extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String instruction = intent.getExtras().getString("instruction");
+            if (instruction.equals("save")) {
+                JSONObject tempJokeHolder = null;
+                String jokeString = null;
+                try {
+                    //Initializes the current joke
+                    tempJokeHolder = new JSONObject(intent.getExtras().getString("joke"));
+                    //Goes through the saved jokes checking for duplicates
+                    boolean canAdd = true;
+                    //tempJoke is used to temporarily store a joke from "jokeListArray"
+                    String tempJoke = intent.getExtras().getString("joke");
+                    ;
+                    for (int i = 0; i < jokeList.length(); i++) {
+                        //If the received joke is locally saved,set canAdd to false
+                        if (tempJoke.equals(jokeList.get(i))) {
+                            canAdd = false;
+                        }
+                    }
+                    //Checks if the joke can be added
+                    if (!tempJokeHolder.getString("id").equals("-1") && canAdd) {
+                        try {
+                            jokeString = returnJokeString(intent.getExtras().getString("joke"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        //Saves the joke information and notifies the recycler view of the changes
+                        int jokePosition = -5;
+                        if (intent.getExtras().getString("position") != null) {
+                            jokePosition = Integer.parseInt(intent.getExtras().getString("position"));
+                        }
+                        if (jokePosition != -5) {
+                            JSONArray updateJokeList = new JSONArray();
+                            for (int i = 0; i < jokeList.length(); i++) {
+                                updateJokeList.put(jokeList.get(i));
+                            }
+                            int numOfIterations = jokeList.length();
+                            for (int i = 0; i < numOfIterations; i++) {
+                                jokeList.remove(0);
+                            }
+                            for (int x = 0; x <= updateJokeList.length(); x++) {
+                                if (x == jokePosition) {
+                                    jokeList.put(tempJokeHolder);
+                                }
+                                if (x < updateJokeList.length()) {
+                                    jokeList.put(updateJokeList.get(x));
+                                }
+                            }
+                        } else {
+                            jokeList.put(tempJokeHolder);
+                            jokePosition = jokeList.length() - 1;
+                        }
+                        adapter.notifyItemInserted(jokePosition);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
     public class GroupUpdate extends BroadcastReceiver {
 
         @Override
@@ -124,6 +180,7 @@ public class GroupedJokes extends AppCompatActivity {
                 if (savedJokeIDs.contains(currentJoke.getString("id"))) {
                     if (idToRemove != null && currentJoke.getString("id").equals(idToRemove)) {
                          savedJokeIDs.remove(currentJoke.getString("id"));
+                         //Frag2.jokeList.remove(x);
                     } else {
                         jokeList.put(currentJoke);
                     }
@@ -132,7 +189,7 @@ public class GroupedJokes extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        Frag2.jokeList = jokeList;
+       // Frag2.jokeList = jokeList;
         adapter.notifyDataSetChanged();
     }
 
@@ -155,21 +212,51 @@ public class GroupedJokes extends AppCompatActivity {
             JSONObject currentJokeJSON = null;
             int position = 0;
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
-            String jokeID = String.valueOf(Frag2.jokeListIDArray.remove(viewHolder.getAdapterPosition()));
+            String jokeID = String.valueOf(Frag2.jokeListIDArray.get(viewHolder.getAdapterPosition()));
             try {
                 Frag2.deleteJoke(String.valueOf(jokeID), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             //Removes it from the recycler view,and notifies the recycler view
+            Intent deleteJoke = new Intent("UPDATEJOKE");
+            deleteJoke.putExtra("instruction", "delete");
+            deleteJoke.putExtra("id", String.valueOf(jokeID));
+            getApplicationContext().sendBroadcast(deleteJoke);
+            Intent updategroup = new Intent("UPDATEGROUP");
+            updategroup.putExtra("idtoremove",jokeID);
+            updategroup.putExtra("id",jokeID);
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
+            HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getApplicationContext(), jokeGroups);
+            String groupName = "";
+            for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
+                String key = entry.getKey();
+                ArrayList<String> jokeIDs = entry.getValue();
+                if (jokeIDs.contains(jokeID)) {
+                    groupName = key;
+                }
+            }
+            if (!groupName.equals("")) {
+                ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+                tempJokeList.remove(jokeID);
+                jokeGroups.put(groupName, tempJokeList);
+            }
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
             int finalPosition = position;
+            String finalGroupName = groupName;
             Snackbar undoAction = Snackbar.make(findViewById(R.id.groupedJokesMain), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                        ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
+                        jokeListAdd.add(jokeID);
+                        jokeGroups.put(finalGroupName, jokeListAdd);
+                        getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                        Intent updategroup = new Intent("UPDATEGROUP");
+                        getApplicationContext().sendBroadcast(updategroup);
+                        jokeList.put(finalCurrentJokeJSON);
                     try {
                         ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
                         listAllTask.storeJoke(getApplicationContext());
@@ -180,6 +267,10 @@ public class GroupedJokes extends AppCompatActivity {
             });
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
+            if (!finalGroupName.equals("")) {
+                getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                getApplicationContext().sendBroadcast(updategroup);
+            }
         }
 
         @Override
