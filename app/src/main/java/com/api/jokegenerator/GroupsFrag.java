@@ -2,7 +2,6 @@ package com.api.jokegenerator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,10 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,13 +30,14 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class GroupsFrag extends Fragment {
+public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface {
     View view;
     ArrayList<String> jokeGroups;
     RecyclerView groupRecyclerView;
     JokeGroupAdapter groupAdapter;
     HashMap<String, ArrayList<String>> jokeGroupMap;
     BroadcastReceiver _updateGroups;
+    FloatingActionButton addFab;
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -48,8 +46,19 @@ public class GroupsFrag extends Fragment {
         _updateGroups = new GroupUpdate();
         IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
         getActivity().registerReceiver(_updateGroups, intentFilter);
+        addFab = view.findViewById(R.id.addFab);
+        addFab.setOnClickListener(addClicked);
         return view;
     }
+
+    @Override
+    public void okClicked(String groupName) {
+        jokeGroups.add(groupName);
+        jokeGroupMap.put(groupName,new ArrayList<>());
+        getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
+        groupAdapter.notifyDataSetChanged();
+    }
+
     public class GroupUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -109,7 +118,7 @@ public class GroupsFrag extends Fragment {
             groupAdapter.notifyDataSetChanged();
             String finalGroup = groupString;
             int finalGroupPosition = groupPosition;
-            Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
+            Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Group Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //Undo deleting the group
@@ -134,4 +143,15 @@ public class GroupsFrag extends Fragment {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     };
+    View.OnClickListener addClicked = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            openDialog();
+        }
+    };
+    public void openDialog(){
+        GroupDialog dialog = new GroupDialog();
+        dialog.listener = this;
+        dialog.show(getFragmentManager(),"something");
+    }
 }

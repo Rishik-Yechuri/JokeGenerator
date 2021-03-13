@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Add Group"
+            android:textColor="@color/colorPrimaryVariant"
+            android:textSize="20sp" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="6" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/ediTextGroupName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="40dp"
+        android:backgroundTint="@color/colorAccent"
+        android:drawableTint="@color/colorPrimaryVariant"
+        android:foregroundTint="#ff1a1a"
+        android:hint="Group Name"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryVariant"
+        android:textColorHint="@color/colorPrimarySubtle" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="12" />
+
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="75sp"
+            android:layout_height="40sp"
+            android:layout_margin="1dp"
+            android:background="@drawable/plainripple"
+            android:clickable="true"
+            android:elevation="1dp"
+            android:text="CANCEL"
+            android:textColor="@color/colorPrimaryVariant" />
+
+        <Button
+            android:id="@+id/okButton"
+            android:layout_width="55sp"
+            android:layout_height="40sp"
+            android:layout_margin="1dp"
+            android:layout_marginEnd="28dp"
+            android:background="@drawable/plainripple"
+            android:clickable="true"
+            android:elevation="1dp"
+            android:text="OK"
+            android:textColor="@color/colorPrimaryVariant" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>
