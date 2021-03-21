@@ -39,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -279,7 +280,10 @@ public class Frag2 extends Fragment {
                         jokeGroups.put(finalGroupName, jokeListAdd);
                         getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
                         Intent updategroup = new Intent("UPDATEGROUP");
+                        updategroup.putExtra("idlistotaddtogroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
+                        updategroup.putExtra("grouptoaddto",finalGroupName);
                         getContext().sendBroadcast(updategroup);
+                        adapter.notifyDataSetChanged();
                     }
                     try {
                         ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
@@ -294,6 +298,9 @@ public class Frag2 extends Fragment {
             if (!finalGroupName.equals("")) {
                 getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
                 Intent updategroup = new Intent("UPDATEGROUP");
+                updategroup.putExtra("grouptoremovefrom",groupName);
+                String list = String.valueOf(new ArrayList<String>(Arrays.asList(jokeID)));
+                updategroup.putExtra("idlistoremovefromgroup",list);
                 getContext().sendBroadcast(updategroup);
             }
         }
@@ -349,7 +356,10 @@ public class Frag2 extends Fragment {
                             data.put("token", idToken[0]);
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
                             data.put("jokeid", id);
-                            FirebaseFunctions.getInstance()
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
                                     .getHttpsCallable("deleteJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

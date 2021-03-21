@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseUser user;
     //Declares an Intent which is used for the BroadcastReceiver
     Intent updateJokes;
+    GroupsUpdated groupsUpdated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,31 +67,35 @@ public class MainActivity extends AppCompatActivity {
         editTextPasswordLogIn = findViewById(R.id.editTextPasswordLogIn);
         //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2.", 9099);
+        groupsUpdated = new GroupsUpdated(getApplicationContext());
     }
+
     //A onClickListener for buttons
     class ViewClicked implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             //Checks if user is logging in or signing up
-            if(v.getId() == R.id.logInView){
-                Intent intent = new Intent(getApplicationContext(),SignUp.class);
+            if (v.getId() == R.id.logInView) {
+                Intent intent = new Intent(getApplicationContext(), SignUp.class);
                 startActivity(intent);
                 finish();
-            }else if(v.getId() == R.id.signUpButton){
+            } else if (v.getId() == R.id.signUpButton) {
                 logIn();
             }
         }
     }
-    public void logIn(){
+
+    public void logIn() {
         //Gets the entered username and password
         String email = editTextEmailAddressLogIn.getText().toString();
         String password = editTextPasswordLogIn.getText().toString();
         //Logs into firebase with the information provided
-        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    Intent intent = new Intent(getApplicationContext(),JokeScreen.class);
+                if (task.isSuccessful()) {
+                    Intent intent = new Intent(getApplicationContext(), JokeScreen.class);
                     FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
                     mUser.getIdToken(true)
                             .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
@@ -113,13 +118,14 @@ public class MainActivity extends AppCompatActivity {
                     //Goes to the main screen
                     startActivity(intent);
                     finish();
-                }else{
+                } else {
                     //Shows a toast if there is an error
-                    Toast.makeText(getApplicationContext(),task.getException().getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
+
     //Saves a joke in Firebase
     public void getSavedJokesFirebase() throws JSONException {
         final String[] idToken = {""};
@@ -133,7 +139,10 @@ public class MainActivity extends AppCompatActivity {
                             //Adds data to send
                             data.put("token", idToken[0]);
                             //Calls "getSavedJokes"
-                            FirebaseFunctions.getInstance()
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            // FirebaseFunctions.getInstance()
+                            functions
                                     .getHttpsCallable("getSavedJokes")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -143,10 +152,10 @@ public class MainActivity extends AppCompatActivity {
                                             HashMap result = (HashMap) task.getResult().getData();
                                             JSONObject res = new JSONObject(result);
                                             //Converts the returned joke IDs to an array
-                                            String returnedIDs  = res.getString("value");
+                                            String returnedIDs = res.getString("value");
                                             String[] jokeIDArray = returnedIDs.split(" ");
                                             //Goes through the array of IDs,and gets each joke from firebase
-                                            for(int x=0;x<jokeIDArray.length;x++){
+                                            for (int x = 0; x < jokeIDArray.length; x++) {
                                                 //Calls Firebase to get the joke
                                                 getJokeFirebase(Integer.parseInt(jokeIDArray[x]));
                                             }
@@ -159,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
     //Gets a single joke back from Firebase given an ID
     public void getJokeFirebase(int jokeID) throws JSONException {
         final String[] idToken = {""};
@@ -171,9 +181,12 @@ public class MainActivity extends AppCompatActivity {
                             //Adds data to send to Firebase
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
-                            data.put("id",String.valueOf(jokeID));
+                            data.put("id", String.valueOf(jokeID));
                             //Calls "returnJoke" firebase function
-                            FirebaseFunctions.getInstance()
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
                                     .getHttpsCallable("returnJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -183,12 +196,12 @@ public class MainActivity extends AppCompatActivity {
                                             HashMap result = (HashMap) task.getResult().getData();
                                             JSONObject res = new JSONObject(result);
                                             //finalJoke is the joke in JSON format
-                                            JSONObject finalJoke = new JSONObject( res.getString("value"));
+                                            JSONObject finalJoke = new JSONObject(res.getString("value"));
                                             //Saves the jokes locally
-                                            StoreJokesLocally.saveJoke(finalJoke,getApplicationContext());
+                                            StoreJokesLocally.saveJoke(finalJoke, getApplicationContext());
                                             //Sends a broadcast with the joke
                                             updateJokes = new Intent("UPDATEJOKE");
-                                            updateJokes.putExtra("instruction","save");
+                                            updateJokes.putExtra("instruction", "save");
                                             updateJokes.putExtra("joke", String.valueOf(finalJoke));
                                             sendBroadcast(updateJokes);
                                             return null;

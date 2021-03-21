@@ -29,6 +29,7 @@ import java.util.HashMap;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
+import static com.api.jokegenerator.Frag2.jokeListIDArray;
 import static com.api.jokegenerator.Frag2.returnJokeString;
 
 public class GroupedJokes extends AppCompatActivity {
@@ -84,6 +85,7 @@ public class GroupedJokes extends AppCompatActivity {
         overridePendingTransition(0, R.anim.slide_out_right);
         return true;
     }
+
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -146,6 +148,7 @@ public class GroupedJokes extends AppCompatActivity {
             }
         }
     }
+
     public class GroupUpdate extends BroadcastReceiver {
 
         @Override
@@ -179,8 +182,8 @@ public class GroupedJokes extends AppCompatActivity {
                 JSONObject currentJoke = allJokes.getJSONObject(x);
                 if (savedJokeIDs.contains(currentJoke.getString("id"))) {
                     if (idToRemove != null && currentJoke.getString("id").equals(idToRemove)) {
-                         savedJokeIDs.remove(currentJoke.getString("id"));
-                         //Frag2.jokeList.remove(x);
+                        savedJokeIDs.remove(currentJoke.getString("id"));
+                        //Frag2.jokeList.remove(x);
                     } else {
                         jokeList.put(currentJoke);
                     }
@@ -189,7 +192,7 @@ public class GroupedJokes extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-       // Frag2.jokeList = jokeList;
+        // Frag2.jokeList = jokeList;
         adapter.notifyDataSetChanged();
     }
 
@@ -212,6 +215,7 @@ public class GroupedJokes extends AppCompatActivity {
             JSONObject currentJokeJSON = null;
             int position = 0;
             //Deletes the joke from firebase(it will later get notified to delete it locally too)
+            ArrayList<Integer> tempQuick = jokeListIDArray;
             String jokeID = String.valueOf(Frag2.jokeListIDArray.get(viewHolder.getAdapterPosition()));
             try {
                 Frag2.deleteJoke(String.valueOf(jokeID), getApplicationContext());
@@ -224,8 +228,11 @@ public class GroupedJokes extends AppCompatActivity {
             deleteJoke.putExtra("id", String.valueOf(jokeID));
             getApplicationContext().sendBroadcast(deleteJoke);
             Intent updategroup = new Intent("UPDATEGROUP");
-            updategroup.putExtra("idtoremove",jokeID);
-            updategroup.putExtra("id",jokeID);
+            updategroup.putExtra("grouptoremovefrom", extras.getString("groupname"));
+            updategroup.putExtra("idlistoremovefromgroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
+            updategroup.putExtra("idtoremove", jokeID);
+            updategroup.putExtra("id", jokeID);
+            updategroup.putExtra("fromswipe","true");
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
             HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
@@ -250,13 +257,15 @@ public class GroupedJokes extends AppCompatActivity {
             Snackbar undoAction = Snackbar.make(findViewById(R.id.groupedJokesMain), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
-                        jokeListAdd.add(jokeID);
-                        jokeGroups.put(finalGroupName, jokeListAdd);
-                        getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-                        Intent updategroup = new Intent("UPDATEGROUP");
-                        getApplicationContext().sendBroadcast(updategroup);
-                        jokeList.put(finalCurrentJokeJSON);
+                    ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
+                    jokeListAdd.add(jokeID);
+                    jokeGroups.put(finalGroupName, jokeListAdd);
+                    getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                    Intent updategroup = new Intent("UPDATEGROUP");
+                    updategroup.putExtra("idlistotaddtogroup", String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
+                    updategroup.putExtra("grouptoaddto", finalGroupName);
+                    getApplicationContext().sendBroadcast(updategroup);
+                    jokeList.put(finalCurrentJokeJSON);
                     try {
                         ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
                         listAllTask.storeJoke(getApplicationContext());

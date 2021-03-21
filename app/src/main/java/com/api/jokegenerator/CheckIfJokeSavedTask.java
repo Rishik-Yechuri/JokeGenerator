@@ -24,10 +24,12 @@ public class CheckIfJokeSavedTask {
     private boolean isStored;
     private int jokeID;
     final String commonObject = "taskobject";
+
     public CheckIfJokeSavedTask(boolean isComplete, int jokeID) {
         this.isComplete = isComplete;
         this.jokeID = jokeID;
     }
+
     //This is the function that other classes call
     public boolean checkIfStored() throws JSONException, InterruptedException {
         //Calls the function which communicates with firebase
@@ -39,6 +41,7 @@ public class CheckIfJokeSavedTask {
         //Returns whether or not the joke is stored
         return isStored;
     }
+
     //Calls a firebase function to see if the joke is saved
     public void checkIfStoredFirebase() throws JSONException {
         final String[] idToken = {""};
@@ -54,9 +57,12 @@ public class CheckIfJokeSavedTask {
                             idToken[0] = task.getResult().getToken();
                             //add data to the Hashmap
                             data.put("token", idToken[0]);
-                            data.put("jokeid",jokeID);
+                            data.put("jokeid", jokeID);
                             //Call the firebase function "checkIfJokeSaved"
-                            FirebaseFunctions.getInstance()
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
                                     .getHttpsCallable("checkIfJokeSaved")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

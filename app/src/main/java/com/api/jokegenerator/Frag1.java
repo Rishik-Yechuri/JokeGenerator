@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.api.jokegenerator.JokeScreen;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -92,7 +93,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListener{
+public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener {
     //boolean backgroundTaskFinished = false;
 
     //Used for Tasks and RxJava. It is cleared when activity is destroyed
@@ -190,9 +191,9 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
         return view;
     }
 
-    public void showPopup(View v){
+    public void showPopup(View v) {
         Context wrapper = new ContextThemeWrapper(getContext(), R.style.PopupMenu);
-        PopupMenu popup = new PopupMenu(wrapper,v);
+        PopupMenu popup = new PopupMenu(wrapper, v);
         popup.setOnMenuItemClickListener(this);
         popup.setGravity(Gravity.RIGHT);
         popup.inflate(R.menu.popup_menu);
@@ -201,8 +202,8 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        if(item.getItemId() == R.id.settings){
-            Intent intent = new Intent(getActivity(),Settings.class);
+        if (item.getItemId() == R.id.settings) {
+            Intent intent = new Intent(getActivity(), Settings.class);
             startActivity(intent);
         }
         return false;
@@ -253,7 +254,6 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
                     @Override
                     //This is where API is called and joke is updated(joke saved in "jsonObject")
                     public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
-                        Log.d("rxjavaflow", "Pre API call");
                         URL url = null;
                         try {
                             //The URL(how the API is called) is set
@@ -350,7 +350,7 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
         //Array of tasks created
         List<ListAllTask> tasks = new ArrayList<>();
         //task added,with jokeJSON as the JSON parameter
-        tasks.add(new ListAllTask(false, jokeJSON,-5));
+        tasks.add(new ListAllTask(false, jokeJSON, -5));
         Observable<ListAllTask> taskObservable = Observable
                 .fromIterable(tasks)
                 .subscribeOn(Schedulers.io())
@@ -395,12 +395,15 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
     }
 
     public void deleteJoke() throws JSONException {
-        String groupName = Frag2.updateGroupName(jsonObject.getString("id"),getContext());
-        Frag2.updateJokeGroups(groupName,jsonObject.getString("id"),Frag2.returnJokeGroups());
+        String groupName = Frag2.updateGroupName(jsonObject.getString("id"), getContext());
+        Frag2.updateJokeGroups(groupName, jsonObject.getString("id"), Frag2.returnJokeGroups());
         getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(Frag2.returnJokeGroups())).apply();
         Intent updategroup = new Intent("UPDATEGROUP");
+        updategroup.putExtra("grouptoremovefrom",groupName);
+        ArrayList<String> jokesToAddToGroup = new ArrayList<>(Arrays.asList(jsonObject.getString("id")));
+        updategroup.putExtra("idlistoremovefromgroup",String.valueOf(jokesToAddToGroup));
         getContext().sendBroadcast(updategroup);
-        StoreJokesLocally.deleteJoke(jokeJSON.getString("id"),getActivity());
+        StoreJokesLocally.deleteJoke(jokeJSON.getString("id"), getActivity());
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -417,7 +420,10 @@ public class Frag1 extends Fragment implements  PopupMenu.OnMenuItemClickListene
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            FirebaseFunctions.getInstance()
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            // FirebaseFunctions.getInstance()
+                            functions
                                     .getHttpsCallable("deleteJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

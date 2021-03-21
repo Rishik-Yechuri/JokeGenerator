@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import org.json.JSONException;
+
 public class GroupDialog extends AppCompatDialogFragment {
     DialogInterface listener;
     EditText groupNameEditText;
@@ -38,12 +40,16 @@ public class GroupDialog extends AppCompatDialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
-                listener.okClicked(groupNameEditText.getText().toString());
+                try {
+                    listener.okClicked(groupNameEditText.getText().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
         return  builder.create();
     }
     public interface DialogInterface {
-        void okClicked(String groupName);
+        void okClicked(String groupName) throws JSONException;
     }
 }

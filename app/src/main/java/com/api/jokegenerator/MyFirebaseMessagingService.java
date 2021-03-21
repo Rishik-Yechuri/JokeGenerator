@@ -29,6 +29,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // TODO(developer): Handle FCM messages here.
         JSONObject jsonReceived = null;
         Intent updateJokes = null;
+        Log.d("firebasesucks","Message Received");
         if(remoteMessage.getData().get("purpose").equals("savejoke") || remoteMessage.getData().get("purpose").equals("deletejoke")){
             try {
                 updateJokes = changeJokes(getApplicationContext(),remoteMessage);

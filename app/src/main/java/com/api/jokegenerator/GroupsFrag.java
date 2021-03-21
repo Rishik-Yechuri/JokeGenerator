@@ -19,12 +19,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
@@ -52,11 +63,12 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
     }
 
     @Override
-    public void okClicked(String groupName) {
+    public void okClicked(String groupName) throws JSONException {
         jokeGroups.add(groupName);
-        jokeGroupMap.put(groupName,new ArrayList<>());
-        getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
+        jokeGroupMap.put(groupName, new ArrayList<>());
+        getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
         groupAdapter.notifyDataSetChanged();
+        addGroupAndIDs(groupName,null);
     }
 
     public class GroupUpdate extends BroadcastReceiver {
@@ -65,6 +77,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             updateGroups(/*intent.getExtras().getString("id")*/);
         }
     }
+
     private void initializeRecyclerView() {
         groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -114,8 +127,13 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             groupPosition = viewHolder.getAdapterPosition();
             groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
             ArrayList<String> jokesSavedInGroup = jokeGroupMap.remove(groupString);
-            getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap",String.valueOf(jokeGroupMap)).apply();
+            getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
             groupAdapter.notifyDataSetChanged();
+            try {
+                removeGroup(groupString,getContext());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             String finalGroup = groupString;
             int finalGroupPosition = groupPosition;
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Group Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
@@ -123,10 +141,14 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                 public void onClick(View v) {
                     //Undo deleting the group
                     jokeGroups.add(finalGroupPosition, finalGroup);
-                    jokeGroupMap.put(finalGroup,jokesSavedInGroup);
+                    jokeGroupMap.put(finalGroup, jokesSavedInGroup);
                     groupAdapter.notifyDataSetChanged();
-                    getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap",String.valueOf(jokeGroupMap)).apply();
-                    Toast.makeText(getContext(), "Undo Group Remove", Toast.LENGTH_SHORT).show();
+                    getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
+                    try {
+                        addGroupAndIDs(finalGroup,jokesSavedInGroup);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
@@ -143,15 +165,98 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     };
-    View.OnClickListener addClicked = new View.OnClickListener(){
+
+    public void removeGroup(String name, Context context) throws JSONException {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            idToken[0] = task.getResult().getToken();
+                            data.put("token", idToken[0]);
+                            data.put("groupName", name);
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
+                                    .getHttpsCallable("removeGroup")
+                                    .call(data)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            return null;
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    View.OnClickListener addClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             openDialog();
         }
     };
-    public void openDialog(){
+
+    public void openDialog() {
         GroupDialog dialog = new GroupDialog();
         dialog.listener = this;
-        dialog.show(getFragmentManager(),"something");
+        dialog.show(getFragmentManager(), "something");
+    }
+
+    public void addGroupAndIDs(String name,ArrayList<String> savedIds) throws JSONException {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            idToken[0] = task.getResult().getToken();
+                            data.put("token", idToken[0]);
+                            data.put("groupName", name);
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
+                                    .getHttpsCallable("addGroup")
+                                    .call(data)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            return null;
+                                        }
+                                    });
+                        }
+                    }
+                });
+        final String[] token = {""};
+        Map<String, Object> data2 = new HashMap<>();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            token[0] = task.getResult().getToken();
+                            data2.put("token", idToken[0]);
+                            data2.put("groupName", name);
+                            data2.put("id",String.valueOf(savedIds));
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
+                                    .getHttpsCallable("addJokeToGroup")
+                                    .call(data2)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            return null;
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 }

@@ -21,7 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -66,7 +66,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
 
         } else {
             holder.optionText.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryVariant));
-
         }
     }
 
@@ -94,6 +93,8 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
                 updategroup.putExtra("idtoremove",jokeID);
+                updategroup.putExtra("grouptoremovefrom",groupName);
+                updategroup.putExtra("idlistoremovefromgroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
             } else {
                 for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
                     String key = entry.getKey();
@@ -118,6 +119,8 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                     deleteJoke.putExtra("id", String.valueOf(jokeID));
                     mContext.sendBroadcast(deleteJoke);
                     updategroup.putExtra("idtoremove",jokeID);
+                    updategroup.putExtra("grouptoremovefrom",groupName);
+                    updategroup.putExtra("idlistoremovefromgroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
                 } else if (firstWord.equals("Move")) {
                     groupName = "";
                     for (int x = 2; x < nameParts.length; x++) {
@@ -127,6 +130,10 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                     jokeListAdd.add(jokeID);
                     jokeGroups.put(groupName, jokeListAdd);
                     updategroup.putExtra("idtoremove",jokeID);
+                    ArrayList<String> tempStuff = new ArrayList<String>(Arrays.asList(jokeID));
+                    String tempString  = String.valueOf(tempStuff);
+                    updategroup.putExtra("idlistotaddtogroup",tempString);
+                    updategroup.putExtra("grouptoaddto",groupName);
                 }
             }
             mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
