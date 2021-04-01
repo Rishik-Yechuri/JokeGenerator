@@ -388,6 +388,10 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                 /*Change download icon  to check to indicate the joke is saved.
                 Show toast to show joke is saved. Set jokeSaved to true*/
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
+                /*Intent intent = new Intent("UPDATEJOKE");
+                intent.putExtra("instruction","save");
+                intent.putExtra("joke", String.valueOf(jokeJSON));
+                getContext().sendBroadcast(intent);*/
                 Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
                 jokeSaved = true;
             }
@@ -433,6 +437,10 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                                             //JSONObject res = new JSONObject(result);
                                             downloadButton.setBackgroundResource(R.drawable.downloadicon);
                                             jokeSaved = false;
+                                            /*Intent intent = new Intent("UPDATEJOKE");
+                                            intent.putExtra("instruction","delete");
+                                            intent.putExtra("id", jokeJSON.getString("id"));
+                                            getContext().sendBroadcast(intent);*/
                                             return null;
                                         }
                                     });

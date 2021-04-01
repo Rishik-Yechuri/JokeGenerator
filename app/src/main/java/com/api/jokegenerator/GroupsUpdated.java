@@ -42,7 +42,7 @@ public class GroupsUpdated {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            } else if(intent.getExtras() != null && intent.getExtras().getString("grouptoremovefrom") != null) {
+            }  if(intent.getExtras() != null && intent.getExtras().getString("grouptoremovefrom") != null) {
                 try {
                     String idList = intent.getExtras().getString("idlistoremovefromgroup").replace(",","").replace("[","").replace("]","");
                    // if(idList != null){

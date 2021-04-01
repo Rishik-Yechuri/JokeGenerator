@@ -35,7 +35,8 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
     //Stores all the jokes to be displayed
     ArrayList<String> groups;
     Context mContext;
-    HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+    //HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+    JSONObject jokeGroups = new JSONObject();
     String jokeID = "";
     DismissSheet SheetClickListener = null;
 
@@ -82,32 +83,71 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             Intent updategroup = new Intent("UPDATEGROUP");
             String firstWord = Text.split(" ")[0];
             SheetClickListener.DismissSheet();
-            HashMap<String, ArrayList<String>> groupMap = returnGroupMap(mContext,jokeGroups);
+           /* try {
+                jokeGroups = new JSONObject(mContext.getSharedPreferences("_",MODE_PRIVATE).getString("groupmap",""));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }*/
+            //JSONObject groupMap = null;
+            try {
+                jokeGroups = returnGroupMap(mContext, jokeGroups);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             String groupName = "";
-            String[] nameParts = Text.split(" ");
-            if (firstWord.equals("Remove")) {
-                for (int x = 2; x < nameParts.length; x++) {
-                    groupName += nameParts[x];
-                }
-                ArrayList<String> tempJokeList = jokeGroups.get(groupName);
-                tempJokeList.remove(jokeID);
-                jokeGroups.put(groupName, tempJokeList);
-                updategroup.putExtra("idtoremove",jokeID);
-                updategroup.putExtra("grouptoremovefrom",groupName);
-                updategroup.putExtra("idlistoremovefromgroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
-            } else {
-                for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
-                    String key = entry.getKey();
-                    ArrayList<String> jokeIDs = entry.getValue();
-                    if (jokeIDs.contains(jokeID)) {
-                        groupName = key;
+
+            JSONObject holdMap = null;
+            try {
+                holdMap = new JSONObject(mContext.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "").replace("[","").replace("]","").replace(" ",""));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            JSONArray key = holdMap.names();
+            int keyLength = key != null ? key.length() : 0;
+            for (int i = 0; i < keyLength; ++i) {
+                try {
+                    String tempGroupName = key.getString(i);
+                    String value = holdMap.getString(tempGroupName);
+                    ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.replace("[","").replace("]","").replace(" ","").split(",")));
+                    if(jokesInGroup.contains(jokeID)){
+                        groupName = tempGroupName;
+                        jokesInGroup.remove(jokeID);
+                        jokeGroups.put(groupName,jokesInGroup);
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (!groupName.equals("")) {
-                    ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+            }
+            /*String[] nameParts = Text.split(" ");
+            for (int x = 2; x < nameParts.length; x++) {
+                if(x!=2){
+                    groupName += " ";
+                }
+                groupName += nameParts[x];
+            }*/
+            updategroup.putExtra("idtoremove", jokeID);
+            updategroup.putExtra("grouptoremovefrom", groupName);
+            updategroup.putExtra("idlistoremovefromgroup", String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
+            if (firstWord.equals("Remove")) {
+                try {
+                    ArrayList<String> tempJokeList = new ArrayList(Arrays.asList(jokeGroups.get(groupName).toString().replace("[", "").replace("]", "").replace("null", "").split(",")));
                     tempJokeList.remove(jokeID);
                     jokeGroups.put(groupName, tempJokeList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+            } else {
+                /*if (!groupName.equals("")) {
+                    ArrayList<String> tempJokeList = null;
+                    try {
+                        tempJokeList = new ArrayList(Arrays.asList(jokeGroups.get(groupName).toString().split(",")));
+                        //tempJokeList = jokeGroups.get(groupName);
+                        tempJokeList.remove(jokeID);
+                        jokeGroups.put(groupName, tempJokeList);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }*/
                 if (firstWord.equals("Delete")) {
                     Intent deleteJoke = new Intent("UPDATEJOKE");
                     try {
@@ -118,26 +158,45 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                     deleteJoke.putExtra("instruction", "delete");
                     deleteJoke.putExtra("id", String.valueOf(jokeID));
                     mContext.sendBroadcast(deleteJoke);
-                    updategroup.putExtra("idtoremove",jokeID);
-                    updategroup.putExtra("grouptoremovefrom",groupName);
-                    updategroup.putExtra("idlistoremovefromgroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
                 } else if (firstWord.equals("Move")) {
-                    groupName = "";
+                    String groupToMoveTo = "";
+                    String[] nameParts = Text.split(" ");
                     for (int x = 2; x < nameParts.length; x++) {
-                        groupName += nameParts[x];
+                        if(x!=2){
+                            groupToMoveTo += " ";
+                        }
+                        groupToMoveTo += nameParts[x];
                     }
-                    ArrayList<String> jokeListAdd = jokeGroups.get(groupName);
+                    /*groupName = "";
+                    for (int x = 2; x < nameParts.length; x++) {
+                        if (x != 2) {
+                            groupName += " ";
+                        }
+                        groupName += nameParts[x];
+                    }*/
+                    ArrayList<String> jokeListAdd = null;
+                    try {
+                        //ArrayList<String> arrayList = new ArrayList(Arrays.asList(jokeGroups.get(groupName)));
+                        jokeListAdd = new ArrayList(Arrays.asList(jokeGroups.get(groupToMoveTo).toString().replace("[", "").replace("]", "").replace("null", "").split(",")));
+                        //jokeListAdd = jokeGroups.get(groupName);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     jokeListAdd.add(jokeID);
-                    jokeGroups.put(groupName, jokeListAdd);
-                    updategroup.putExtra("idtoremove",jokeID);
+                    try {
+                        jokeGroups.put(groupToMoveTo, jokeListAdd);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    updategroup.putExtra("idtoremove", jokeID);
                     ArrayList<String> tempStuff = new ArrayList<String>(Arrays.asList(jokeID));
-                    String tempString  = String.valueOf(tempStuff);
-                    updategroup.putExtra("idlistotaddtogroup",tempString);
-                    updategroup.putExtra("grouptoaddto",groupName);
+                    String tempString = String.valueOf(tempStuff);
+                    updategroup.putExtra("idlistotaddtogroup", tempString);
+                    updategroup.putExtra("grouptoaddto", groupToMoveTo);
                 }
             }
             mContext.getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-            updategroup.putExtra("id",jokeID);
+            updategroup.putExtra("id", jokeID);
             mContext.sendBroadcast(updategroup);
         }
     }
@@ -168,20 +227,14 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     }
 
-    public static HashMap<String, ArrayList<String>> returnGroupMap(Context context, HashMap<String, ArrayList<String>> jokeGroups) {
-        String holdMap = context.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
-        String[] splitMap = holdMap.split("], ");
-        for (int x = 0; x < splitMap.length; x++) {
-            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
-            filteredString = filteredString.replace("}", "");
-            String[] basicSplit = filteredString.split("=");
-            String groupName = basicSplit[0];
-            String[] tempGroupIDs;
-            ArrayList<String> jokesInGroup = new ArrayList<>();
-            if (basicSplit.length > 1) {
-                tempGroupIDs = basicSplit[1].split(", ");
-                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
-            }
+    public static JSONObject returnGroupMap(Context context, JSONObject jokeGroups) throws JSONException {
+        JSONObject holdMap = new JSONObject(context.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
+        JSONArray key = holdMap.names();
+        int keyLength = key != null ? key.length() : 0;
+        for (int i = 0; i < keyLength; ++i) {
+            String groupName = key.getString(i);
+            String value = holdMap.getString(groupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.split(",")));
             jokeGroups.put(groupName, jokesInGroup);
         }
         return jokeGroups;

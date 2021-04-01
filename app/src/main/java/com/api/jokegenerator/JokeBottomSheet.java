@@ -14,6 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +35,11 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
             ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.jokebottomsheet,
                 container, false);
-        initializeSheetRecycler();
+        try {
+            initializeSheetRecycler();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         //super.dismiss();
         //Button okButton = v.findViewById(R.id.okbutton);
         //okButton.setOnClickListener(jokeClicked);
@@ -39,34 +47,41 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         return v;
     }
 
-    private void initializeSheetRecycler() {
+    private void initializeSheetRecycler() throws JSONException {
         sheetRecyclerView = v.findViewById(R.id.optionSheetRecyclerView);
         sheetRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
+        JSONObject jokeGroups = new JSONObject(getContext().getSharedPreferences("_",MODE_PRIVATE).getString("groupmap",""));
+        JSONArray key = jokeGroups.names();
         String currentGroup = "";
         ArrayList<String> otherGroups = new ArrayList<>();
-       /* HashMap<String,ArrayList<Integer>> holdStuff =  new HashMap<String, ArrayList<Integer>>();
-        holdStuff.put("Funny",new ArrayList<Integer>(Arrays.asList()));
-        holdStuff.put("Hey",new ArrayList<Integer>(Arrays.asList()));
-        holdStuff.put("Meme",new ArrayList<Integer>(Arrays.asList()));
-        getContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(holdStuff)).apply();*/
-        String holdMap = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
-        String[] splitMap = holdMap.split("], ");
-        for (int x = 0; x < splitMap.length; x++) {
-            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
-            filteredString = filteredString.replace("}", "");
-            String[] basicSplit = filteredString.split("=");
-            String groupName = basicSplit[0];
-            String[] tempGroupIDs = null;
-            ArrayList<String> jokesInGroup = new ArrayList<>();
-            if (basicSplit.length > 1) {
-                tempGroupIDs = basicSplit[1].split(", ");
-                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
+        int keyLength = key != null ? key.length() : 0;
+        for (int i = 0; i < keyLength; ++i) {
+            String groupName = key.getString (i);
+            String value = jokeGroups.getString (groupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.replace("[","").replace("]","").split(",")));
+            for(int x=0;x<jokesInGroup.size();x++){
+                String tempString = jokesInGroup.get(x);
+                tempString = tempString.replace(" ","");
+                jokesInGroup.remove(x);
+                jokesInGroup.add(x,tempString);
             }
-            jokeGroups.put(groupName, jokesInGroup);
-            if (jokesInGroup.contains(String.valueOf(this.getArguments().getString("id")))) {
+            /*jokesInGroup.add("rebegyou");
+            String whyDoesThisNotWORkseriously = String.valueOf(this.getArguments().getString("id"));
+            boolean idFound = false;
+            for(int x=0;x<jokesInGroup.size();x++){
+                int tempID = -1;
+                if(jokesInGroup.get(x).length() > 0){
+                    String tempString = jokesInGroup.get(x).replaceAll(" ","");
+                    tempID = Integer.parseInt(tempString);
+                }
+                if(tempID == Integer.parseInt(this.getArguments().getString("id"))){
+                    idFound = true;
+                    currentGroup = groupName;
+                }
+            }*/
+            if(jokesInGroup.contains(String.valueOf(this.getArguments().getString("id")))){
                 currentGroup = groupName;
-            } else if(!groupName.equals("")){
+            }else if(!groupName.equals("")){
                 otherGroups.add(groupName);
             }
         }

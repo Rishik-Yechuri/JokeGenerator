@@ -58,7 +58,11 @@ public class GroupedJokes extends AppCompatActivity {
             e.printStackTrace();
         }
         initializeRecyclerView();
-        updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), null);
+        try {
+            updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), null);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
         //Sets up stuff for the BroadcastReceiver
         _updateJokes = new GroupUpdate();
@@ -153,17 +157,21 @@ public class GroupedJokes extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), intent.getStringExtra("idtoremove"));
+            try {
+                updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), intent.getStringExtra("idtoremove"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void updateJokesInGroup(ArrayList<String> savedIDs, String tempGroupName, String idToRemove) {
+    public void updateJokesInGroup(ArrayList<String> savedIDs, String tempGroupName, String idToRemove) throws JSONException {
         int lengthOfList = jokeList.length();
         for (int x = 0; x < lengthOfList; x++) {
             jokeList.remove(0);
         }
-        String groupMapString = getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
-        String[] splitMap = groupMapString.split("], ");
+        //String groupMapString = getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
+        /*String[] splitMap = groupMapString.split("], ");
         for (int x = 0; x < splitMap.length; x++) {
             String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
             filteredString = filteredString.replace("}", "");
@@ -175,6 +183,15 @@ public class GroupedJokes extends AppCompatActivity {
                 tempGroupIDs = basicSplit[1].split(", ");
                 jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
             }
+        }*/
+        JSONObject groupMapJSON = new JSONObject(getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
+        JSONArray key = groupMapJSON.names();
+        int keyLength = key != null?key.length():0;
+        for (int i = 0; i < keyLength; ++i) {
+            String groupName = key.getString (i);
+            String value = groupMapJSON.getString (groupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.split(",")));
+
         }
         savedJokeIDs = savedIDs;
         for (int x = 0; x < allJokes.length(); x++) {
@@ -235,20 +252,36 @@ public class GroupedJokes extends AppCompatActivity {
             updategroup.putExtra("fromswipe","true");
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
-            HashMap<String, ArrayList<String>> jokeGroups = new HashMap<>();
-            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getApplicationContext(), jokeGroups);
+            JSONObject jokeGroups = new JSONObject();
+            JSONObject groupMap = null;
+            try {
+                groupMap = SheetButtonAdapter.returnGroupMap(getApplicationContext(), jokeGroups);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            JSONArray key = groupMap.names();
             String groupName = "";
-            for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
-                String key = entry.getKey();
-                ArrayList<String> jokeIDs = entry.getValue();
-                if (jokeIDs.contains(jokeID)) {
-                    groupName = key;
+            for (int i = 0; i < key.length(); ++i) {
+                String tempGroupName = null;
+                try {
+                    tempGroupName = key.getString(i);
+                    String value = jokeGroups.getString(tempGroupName);
+                    ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.replace("[","").replace("]","").replace(" ","").split(",")));
+                    if(jokesInGroup.contains(jokeID)){
+                        groupName = tempGroupName;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
             if (!groupName.equals("")) {
-                ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+                try{
+                ArrayList<String> tempJokeList = new ArrayList<String>(Arrays.asList(jokeGroups.get(groupName).toString().replace("[","").replace("]","").replace(" ","").split(",")));
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             adapter.notifyDataSetChanged();
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
@@ -257,7 +290,8 @@ public class GroupedJokes extends AppCompatActivity {
             Snackbar undoAction = Snackbar.make(findViewById(R.id.groupedJokesMain), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
+                    try{
+                    ArrayList<String> jokeListAdd = new ArrayList<String>(Arrays.asList(jokeGroups.get(finalGroupName).toString().replace("[","").replace("]","").replace(" ","").split(",")));
                     jokeListAdd.add(jokeID);
                     jokeGroups.put(finalGroupName, jokeListAdd);
                     getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
@@ -266,9 +300,13 @@ public class GroupedJokes extends AppCompatActivity {
                     updategroup.putExtra("grouptoaddto", finalGroupName);
                     getApplicationContext().sendBroadcast(updategroup);
                     jokeList.put(finalCurrentJokeJSON);
+                    adapter.notifyDataSetChanged();
                     try {
                         ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
                         listAllTask.storeJoke(getApplicationContext());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

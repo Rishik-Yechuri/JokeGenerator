@@ -56,6 +56,11 @@ public class MainActivity extends AppCompatActivity {
             //Goes to the joke screen
             Intent i = new Intent(MainActivity.this, JokeScreen.class);
             startActivity(i);
+            try {
+                getSavedGroups();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             finish();
         }
         //Initializes text and buttons
@@ -108,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                                         //Gets all the saved jokes from Firebase
                                         try {
                                             getSavedJokesFirebase();
+                                            getSavedGroups();
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -204,6 +210,44 @@ public class MainActivity extends AppCompatActivity {
                                             updateJokes.putExtra("instruction", "save");
                                             updateJokes.putExtra("joke", String.valueOf(finalJoke));
                                             sendBroadcast(updateJokes);
+                                            return null;
+                                        }
+                                    });
+                            // ...
+                        } else {
+                        }
+                    }
+                });
+    }
+    public void getSavedGroups() throws JSONException {
+        final String[] idToken = {""};
+        Map<String, Object> data = new HashMap<>();
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mUser.getIdToken(true)
+                .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                    public void onComplete(@NonNull Task<GetTokenResult> task) {
+                        if (task.isSuccessful()) {
+                            //Adds data to send to Firebase
+                            idToken[0] = task.getResult().getToken();
+                            data.put("token", idToken[0]);
+                            //Calls "returnJoke" firebase function
+                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);
+                            //FirebaseFunctions.getInstance()
+                            functions
+                                    .getHttpsCallable("returnSavedGroups")
+                                    .call(data)
+                                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+                                        @Override
+                                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                            //Converts return information to a JSONObject
+                                            HashMap result = (HashMap) task.getResult().getData();
+                                            JSONObject res = new JSONObject(result);
+                                            String groupMap = res.getString("map");
+                                            JSONObject groupMapJSON = new JSONObject(groupMap);
+                                            Log.d("mapsbois","groupMap:" + groupMap);
+                                            Log.d("mapsbois","res:" + res);
+                                            getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).edit().putString("groupmap", String.valueOf(groupMapJSON)).apply();
                                             return null;
                                         }
                                     });

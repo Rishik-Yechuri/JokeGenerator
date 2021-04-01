@@ -19,18 +19,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.security.acl.Group;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.ViewHolder> {
     //Stores all the jokes to be displayed
-    HashMap<String, ArrayList<String>> groupMap;
+    JSONObject groupMap;
     ArrayList<String> groupNames = new ArrayList<>();
     Context mContext;
 
-    public JokeGroupAdapter(ArrayList<String> groupNames, HashMap<String, ArrayList<String>> groupMap, Context context) {
+    public JokeGroupAdapter(ArrayList<String> groupNames, JSONObject groupMap, Context context) {
         //Initializes variables
         this.groupNames = groupNames;
         this.groupMap = groupMap;
@@ -73,7 +75,13 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, GroupedJokes.class);
                 intent.putExtra("groupname",str);
-                intent.putExtra("jokesingroup",groupMap.get(str));
+                try {
+                    String thing = String.valueOf(groupMap.get(str));
+                    ArrayList listToSend = new ArrayList(Arrays.asList(groupMap.get(str).toString().replace("[","").replace("]","").replace(" ","").split(",")));
+                    intent.putExtra("jokesingroup",listToSend);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 mContext.startActivity(intent);
                 ((Activity)mContext).overridePendingTransition(R.anim.slide_in_right,R.anim.no_animation);
             }

@@ -60,7 +60,7 @@ public class Frag2 extends Fragment {
     //Used for the RecyclerView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
-    static HashMap<String, ArrayList<String>> jokeGroups;
+    static JSONObject jokeGroups;
 
     @Nullable
     @Override
@@ -94,7 +94,6 @@ public class Frag2 extends Fragment {
         }
         //Initializes the recycler view
         initializeRecyclerView();
-
         return view;
     }
 
@@ -186,7 +185,7 @@ public class Frag2 extends Fragment {
                     //jokeListArray.remove(index);
                 }
                 jokeList.length();
-               // jokeList.remove(0);
+                // jokeList.remove(0);
                 adapter.notifyDataSetChanged();
             }
             //showSync();
@@ -251,10 +250,11 @@ public class Frag2 extends Fragment {
             //Removes it from the recycler view,and notifies the recycler view
             position = viewHolder.getAdapterPosition();
             currentJokeJSON = (JSONObject) jokeList.remove(viewHolder.getAdapterPosition());
-            jokeGroups = new HashMap<>();
-            HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(getContext(), jokeGroups);
-            String groupName = updateGroupName(jokeID,getContext());
-            updateJokeGroups(groupName,jokeID,jokeGroups);
+            jokeGroups = new JSONObject();
+            try {
+                JSONObject groupMap = SheetButtonAdapter.returnGroupMap(getContext(), jokeGroups);
+                String groupName = updateGroupName(jokeID, getContext());
+                updateJokeGroups(groupName, jokeID, jokeGroups);
             /*for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
                 String key = entry.getKey();
                 ArrayList<String> jokeIDs = entry.getValue();
@@ -267,41 +267,56 @@ public class Frag2 extends Fragment {
                 tempJokeList.remove(jokeID);
                 jokeGroups.put(groupName, tempJokeList);
             }*/
-            adapter.notifyDataSetChanged();
-            JSONObject finalCurrentJokeJSON = currentJokeJSON;
-            int finalPosition = position;
-            String finalGroupName = groupName;
-            Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!finalGroupName.equals("")) {
-                        ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName);
-                        jokeListAdd.add(jokeID);
-                        jokeGroups.put(finalGroupName, jokeListAdd);
-                        getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-                        Intent updategroup = new Intent("UPDATEGROUP");
-                        updategroup.putExtra("idlistotaddtogroup",String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
-                        updategroup.putExtra("grouptoaddto",finalGroupName);
-                        getContext().sendBroadcast(updategroup);
-                        adapter.notifyDataSetChanged();
+                /*Intent intent = new Intent("UPDATEJOKE");
+                intent.putExtra("joke", String.valueOf(jokeJSON));
+                getContext().sendBroadcast(intent);*/
+                adapter.notifyDataSetChanged();
+                JSONObject finalCurrentJokeJSON = currentJokeJSON;
+                int finalPosition = position;
+                String finalGroupName = groupName;
+                Snackbar undoAction = Snackbar.make(view.findViewById(R.id.coordinatorLayout), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!finalGroupName.equals("")) {
+                            try {
+                                ArrayList<String> jokeListAdd = new ArrayList(Arrays.asList(jokeGroups.get(finalGroupName).toString().split(",")));
+                                //ArrayList<String> jokeListAdd = jokeGroups.get(finalGroupName).toString();
+                                jokeListAdd.add(jokeID);
+                                jokeGroups.put(finalGroupName, jokeListAdd);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                            Intent updategroup = new Intent("UPDATEGROUP");
+                            updategroup.putExtra("idlistotaddtogroup", String.valueOf(new ArrayList<String>(Arrays.asList(jokeID))));
+                            updategroup.putExtra("grouptoaddto", finalGroupName);
+                            Intent intent = new Intent("UPDATEJOKE");
+                            intent.putExtra("instruction", "save");
+                            intent.putExtra("position", finalPosition);
+                            getContext().sendBroadcast(intent);
+                            getContext().sendBroadcast(updategroup);
+                            adapter.notifyDataSetChanged();
+                        }
+                        try {
+                            ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
+                            listAllTask.storeJoke(getContext());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    try {
-                        ListAllTask listAllTask = new ListAllTask(false, finalCurrentJokeJSON, finalPosition);
-                        listAllTask.storeJoke(getContext());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                });
+                undoAction.setActionTextColor(Color.rgb(255, 200, 35));
+                undoAction.show();
+                if (!finalGroupName.equals("")) {
+                    getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
+                    Intent updategroup = new Intent("UPDATEGROUP");
+                    updategroup.putExtra("grouptoremovefrom", groupName);
+                    String list = String.valueOf(new ArrayList<String>(Arrays.asList(jokeID)));
+                    updategroup.putExtra("idlistoremovefromgroup", list);
+                    getContext().sendBroadcast(updategroup);
                 }
-            });
-            undoAction.setActionTextColor(Color.rgb(255, 200, 35));
-            undoAction.show();
-            if (!finalGroupName.equals("")) {
-                getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroups)).apply();
-                Intent updategroup = new Intent("UPDATEGROUP");
-                updategroup.putExtra("grouptoremovefrom",groupName);
-                String list = String.valueOf(new ArrayList<String>(Arrays.asList(jokeID)));
-                updategroup.putExtra("idlistoremovefromgroup",list);
-                getContext().sendBroadcast(updategroup);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
 
@@ -320,29 +335,45 @@ public class Frag2 extends Fragment {
     public static float convertDpToPixel(float dp, Context context) {
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
-    public static String updateGroupName(String jokeID,Context context){
-        jokeGroups = new HashMap<>();
-        HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(context, jokeGroups);
+
+    public static String updateGroupName(String jokeID, Context context) throws JSONException {
+        jokeGroups = new JSONObject();
+        // HashMap<String, ArrayList<String>> groupMap = SheetButtonAdapter.returnGroupMap(context, jokeGroups);
+        JSONObject groupMap = SheetButtonAdapter.returnGroupMap(context, jokeGroups);
+        JSONArray key = groupMap.names();
         String groupName = "";
-        for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
+        int keyLength = key != null ? key.length() : 0;
+        for (int i = 0; i < keyLength; ++i) {
+            String tempGroupName = key.getString(i);
+            String value = jokeGroups.getString(tempGroupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.split(",")));
+            if (jokesInGroup.contains(jokeID)) {
+                groupName = tempGroupName;
+            }
+        }
+        /*for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
             String key = entry.getKey();
             ArrayList<String> jokeIDs = entry.getValue();
             if (jokeIDs.contains(jokeID)) {
                 groupName = key;
             }
-        }
-       return groupName;
+        }*/
+        return groupName;
     }
-    public static void updateJokeGroups(String groupName,String jokeID,HashMap<String, ArrayList<String>> jokeGroups){
+
+    public static void updateJokeGroups(String groupName, String jokeID, JSONObject jokeGroups) throws JSONException {
         if (!groupName.equals("")) {
-            ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+            //ArrayList<String> tempJokeList = jokeGroups.get(groupName);
+            ArrayList<String> tempJokeList = new ArrayList<String>(Arrays.asList(jokeGroups.get(groupName).toString().replace("[", "").replace("]", "").replace("null", "").replace(" ", "").split(",")));
             tempJokeList.remove(jokeID);
             jokeGroups.put(groupName, tempJokeList);
         }
     }
-    public static HashMap<String, ArrayList<String>> returnJokeGroups(){
+
+    public static JSONObject returnJokeGroups() {
         return jokeGroups;
     }
+
     //Calls firebase to delete the joke
     public static void deleteJoke(String id, Context context) throws JSONException {
         final String[] idToken = {""};

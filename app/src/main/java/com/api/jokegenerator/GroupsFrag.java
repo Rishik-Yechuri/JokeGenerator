@@ -30,7 +30,9 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,14 +48,18 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
     ArrayList<String> jokeGroups;
     RecyclerView groupRecyclerView;
     JokeGroupAdapter groupAdapter;
-    HashMap<String, ArrayList<String>> jokeGroupMap;
+    JSONObject jokeGroupMap;
     BroadcastReceiver _updateGroups;
     FloatingActionButton addFab;
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.activity_groups_frag, container, false);
-        initializeRecyclerView();
+        try {
+            initializeRecyclerView();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         _updateGroups = new GroupUpdate();
         IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
         getActivity().registerReceiver(_updateGroups, intentFilter);
@@ -68,45 +74,46 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         jokeGroupMap.put(groupName, new ArrayList<>());
         getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
         groupAdapter.notifyDataSetChanged();
-        addGroupAndIDs(groupName,null);
+        addGroupAndIDs(groupName, null);
     }
 
     public class GroupUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            updateGroups(/*intent.getExtras().getString("id")*/);
+            try {
+                updateGroups(/*intent.getExtras().getString("id")*/);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void initializeRecyclerView() {
+    private void initializeRecyclerView() throws JSONException {
         groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(groupRecyclerView);
         jokeGroups = new ArrayList<String>();
-        jokeGroupMap = new HashMap<>();
+        jokeGroupMap = new JSONObject();
         groupAdapter = new JokeGroupAdapter(jokeGroups, jokeGroupMap, getContext());
         groupRecyclerView.setAdapter(groupAdapter);
         updateGroups();
     }
 
-    public void updateGroups() {
+    public void updateGroups() throws JSONException {
         jokeGroups.clear();
-        jokeGroupMap.clear();
-        String groupMapString = getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
-        String[] splitMap = groupMapString.split("], ");
-        for (int x = 0; x < splitMap.length; x++) {
-            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
-            filteredString = filteredString.replace("}", "");
-            String[] basicSplit = filteredString.split("=");
-            String groupName = basicSplit[0];
-            String[] tempGroupIDs = null;
-            ArrayList<String> jokesInGroup = new ArrayList<>();
-            if (basicSplit.length > 1) {
-                tempGroupIDs = basicSplit[1].split(", ");
-                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
-            }
-            if (!groupName.equals("")) {
-                jokeGroupMap.put(groupName, jokesInGroup);
+        //jokeGroupMap.;
+
+        JSONObject groupMapJSON = new JSONObject(getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
+        JSONArray key = groupMapJSON.names();
+        int keyLength = 0;
+        if(key != null){keyLength = key.length();}
+        for (int i = 0; i < keyLength; ++i) {
+            String groupName = key.getString (i);
+            String value = groupMapJSON.getString (groupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.split(",")));
+            jokeGroupMap.remove(groupName);
+            if(!groupName.equals("")){
+                jokeGroupMap.put(groupName,jokesInGroup);
                 jokeGroups.add(groupName);
             }
         }
@@ -126,11 +133,11 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             //Remove the group
             groupPosition = viewHolder.getAdapterPosition();
             groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
-            ArrayList<String> jokesSavedInGroup = jokeGroupMap.remove(groupString);
+            ArrayList<String> jokesSavedInGroup = new ArrayList(Arrays.asList(jokeGroupMap.remove(groupString)));
             getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
             groupAdapter.notifyDataSetChanged();
             try {
-                removeGroup(groupString,getContext());
+                removeGroup(groupString, getContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -141,11 +148,15 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                 public void onClick(View v) {
                     //Undo deleting the group
                     jokeGroups.add(finalGroupPosition, finalGroup);
-                    jokeGroupMap.put(finalGroup, jokesSavedInGroup);
+                    try {
+                        jokeGroupMap.put(finalGroup, jokesSavedInGroup);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     groupAdapter.notifyDataSetChanged();
                     getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
                     try {
-                        addGroupAndIDs(finalGroup,jokesSavedInGroup);
+                        addGroupAndIDs(finalGroup, jokesSavedInGroup);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -207,7 +218,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         dialog.show(getFragmentManager(), "something");
     }
 
-    public void addGroupAndIDs(String name,ArrayList<String> savedIds) throws JSONException {
+    public void addGroupAndIDs(String name, ArrayList<String> savedIds) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -242,7 +253,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                             token[0] = task.getResult().getToken();
                             data2.put("token", idToken[0]);
                             data2.put("groupName", name);
-                            data2.put("id",String.valueOf(savedIds));
+                            data2.put("id", String.valueOf(savedIds));
                             FirebaseFunctions functions = FirebaseFunctions.getInstance();
                             functions.useEmulator("10.0.2.2.", 5001);
                             //FirebaseFunctions.getInstance()
