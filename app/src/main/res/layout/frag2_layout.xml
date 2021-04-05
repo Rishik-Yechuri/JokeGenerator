@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="top"
-    android:background="#292424"
     android:orientation="vertical"
     tools:context=".Frag2">
 
@@ -27,29 +26,5 @@
         android:elevation="100dp" />
 
     </FrameLayout>
-    <!--<androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/top_coordinator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:elevation="100dp" />-->
-
-    <!--<androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />-->
-
-
-</LinearLayout><!--<?xml version="1.0" encoding="UTF-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:background="#292424"
-    android:layout_height="fill_parent">
-    <!- Header goes here -->
-    <!-- Body goes here -->
-
-    <!--</LinearLayout>-->
+</LinearLayout>
 

@@ -26,7 +26,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:textColor="@color/colorPrimaryVariant"
             android:textSize="20sp"
             android:layout_weight="1"
             android:text="Why is diesel such a cool thing that people love?\nBecause its really good for the stonks" />
@@ -42,6 +41,7 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/colorPrimarySubtle" />
+        android:background="@color/colorPrimarySubtle"
+        />
 
 </LinearLayout>

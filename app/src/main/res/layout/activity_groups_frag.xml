@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:id="@+id/groupMainLayout"
     android:orientation="vertical"
-    android:background="@color/colorPrimary"
     tools:context=".GroupsFrag">
 
     <androidx.recyclerview.widget.RecyclerView

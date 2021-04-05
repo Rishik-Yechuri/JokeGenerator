@@ -4,4 +4,8 @@
     <color name="colorPrimarySubtle">#656565</color>
     <color name="colorPrimaryVariant">#FFFFFF</color>
     <color name="colorAccent">#b30000</color>
+    <color name="colorSecondary">#FFFFFF</color>
+    <color name="colorSecondarySubtle">#CCCCCC</color>
+    <color name="colorSecondaryVariant">#111111</color>
+    <color name="colorSecondaryAccent">#b30000</color>
 </resources>

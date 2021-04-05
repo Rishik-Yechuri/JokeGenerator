@@ -1,4 +1,4 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
@@ -6,25 +6,67 @@
         <item name="colorPrimaryDark">@color/colorPrimarySubtle</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="popupMenuStyle">@style/PopupMenu</item>
+        <item name="tabStyle">@style/AppTabLayout</item>
+        <item name="android:textColor">@color/colorPrimaryVariant</item>
+    </style>
+    <style name="AppThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorSecondary</item>
+        <item name="colorPrimaryDark">@color/colorSecondarySubtle</item>
+        <item name="colorPrimaryVariant">@color/colorSecondaryVariant</item>
+        <item name="colorAccent">@color/colorSecondaryAccent</item>
+        <item name="android:windowBackground">@color/colorSecondary</item>
+        <item name="popupMenuStyle">@style/PopupMenuLight</item>
+        <item name="tabStyle">@style/AppTabLayoutLight</item>
+        <item name="android:textColor">@color/colorSecondaryVariant</item>
     </style>
 
-    <style name="AppTheme.Launcher" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <!--<item name="colorPrimaryDark">@android:color/white</item>-->
+   <style name="AppTheme.Launcher" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/startupscreen</item>
+    </style>
+    <style name="AppTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/colorAccent</item>
+        <item name="tabBackground">@color/colorPrimary</item>
+        <item name="tabSelectedTextColor">@color/colorPrimaryVariant</item>
+        <item name="tabTextColor">@color/colorPrimarySubtle</item>
+    </style>
+
+    <style name="AppTabLayoutLight" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/colorSecondaryAccent</item>
+        <item name="tabBackground">@color/colorSecondary</item>
+        <item name="tabSelectedTextColor">@color/colorSecondaryVariant</item>
+        <item name="tabTextColor">@color/colorSecondarySubtle</item>
+    </style>
+    <style name="Layout" parent="">
+        <item name="tabIndicatorColor">@color/colorSecondaryAccent</item>
+        <item name="tabBackground">@color/colorSecondary</item>
+        <item name="tabSelectedTextColor">@color/colorSecondaryVariant</item>
+        <item name="tabTextColor">@color/colorSecondarySubtle</item>
     </style>
 
     <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:colorAccent">#FFFFFF</item>
+        <item name="android:colorAccent">@color/colorPrimaryVariant</item>
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@color/colorPrimaryVariant</item>
     </style>
 
+    <style name="AlertDialogStyleLight" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorAccent">@color/colorSecondaryVariant</item>
+        <item name="android:textColor">@color/colorSecondaryAccent</item>
+        <item name="android:windowBackground">@color/colorSecondary</item>
+        <item name="android:textColorPrimary">@color/colorSecondaryVariant</item>
+    </style>
+
     <style name="PopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:textColor">@color/colorPrimaryVariant</item>
         <item name="android:itemBackground">@color/colorPrimary</item>
+    </style>
+    <style name="PopupMenuLight" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@color/colorSecondaryVariant</item>
+        <item name="android:itemBackground">@color/colorSecondary</item>
     </style>
 
     <style name="AppTheme.BackgroundRipple">
@@ -39,5 +81,9 @@
     <style name="Toolbar" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <!-- color used by navigation icon and overflow icon -->
         <item name="colorOnPrimary">@color/colorPrimaryVariant</item>
+    </style>
+    <style name="ToolbarLight" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
+        <!-- color used by navigation icon and overflow icon -->
+        <item name="colorOnPrimary">@color/colorSecondaryVariant</item>
     </style>
 </resources>

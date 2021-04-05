@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,7 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //Sets the jokes text
         holder.jokeText.setText(groupNames.get(position));
+        if(MainActivity.currentTheme.equals("light")){holder.divider.setBackgroundColor(Color.parseColor("#CCCCCC"));}
         groupClicked(holder.mainLayout,groupNames.get(position));
     }
 
@@ -62,11 +64,12 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout mainLayout;
         TextView jokeText;
-
+        View divider;
         public ViewHolder(View itemView) {
             super(itemView);
             mainLayout = itemView.findViewById(R.id.recyclableLayout);
             jokeText = itemView.findViewById(R.id.JokeText);
+            divider = itemView.findViewById(R.id.divider);
         }
     }
     private void groupClicked(View view,String str){

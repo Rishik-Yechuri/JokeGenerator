@@ -193,6 +193,9 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
 
     public void showPopup(View v) {
         Context wrapper = new ContextThemeWrapper(getContext(), R.style.PopupMenu);
+        if(MainActivity.currentTheme.equals("light")){
+            wrapper = new ContextThemeWrapper(getContext(), R.style.PopupMenuLight);
+        }
         PopupMenu popup = new PopupMenu(wrapper, v);
         popup.setOnMenuItemClickListener(this);
         popup.setGravity(Gravity.RIGHT);

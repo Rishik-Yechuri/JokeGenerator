@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -32,6 +34,9 @@ public class Settings extends AppCompatActivity {
     ArrayList<String> categories;
     ArrayList<String> blacklisted;
     ArrayList<String> numOfPartsString;
+    RadioButton lightButton;
+    RadioButton darkButton;
+    RadioGroup themeGroup;
     float widthToSetGlobal;
 
     @Override
@@ -71,10 +76,34 @@ public class Settings extends AppCompatActivity {
             changeJokeURL();
         }
         filterChips.setLayoutParams(new LinearLayout.LayoutParams((int) convertDpToPx(getApplicationContext(), widthToSetGlobal), ViewGroup.LayoutParams.MATCH_PARENT));
+        themeGroup = findViewById(R.id.themeGroup);
+        themeGroup.setOnCheckedChangeListener(themeChanged);
+        lightButton = findViewById(R.id.lightButton);
+        darkButton = findViewById(R.id.darkButton);
+        String currentTheme = getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).getString("theme","dark");
+        if(currentTheme.equals("light")){
+            lightButton.setChecked(true);
+        }else if(currentTheme.equals("dark")){
+            darkButton.setChecked(true);
+        }
     }
 
+    RadioGroup.OnCheckedChangeListener themeChanged = new RadioGroup.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(RadioGroup group, int checkedId) {
+            if (group == findViewById(R.id.themeGroup)) {
+                if (checkedId == 2131230947) {
+                    getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("theme", "light").apply();
+                }
+                if (checkedId == 2131230847) {
+                    getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("theme", "dark").apply();
+                }
+            }
+        }
+    };
+
     public void setDefaultChips() {
-        ArrayList<String> defaultChipList = new ArrayList<String>(Arrays.asList("Single", "Twopart", "Programming", "Misc", "Spooky", "Christmas", "Political","Pun"));
+        ArrayList<String> defaultChipList = new ArrayList<String>(Arrays.asList("Single", "Twopart", "Programming", "Misc", "Spooky", "Christmas", "Political", "Pun"));
         for (int x = 0; x < chipString.size(); x++) {
             if (defaultChipList.contains(chipString.get(x))) {
                 chipList.get(x).setChecked(true);
@@ -131,11 +160,11 @@ public class Settings extends AppCompatActivity {
             } else {
                 urlEnding += "&";
             }
-            urlEnding+=jokeTypeString;
+            urlEnding += jokeTypeString;
         }
-        link+=urlEnding;
+        link += urlEnding;
         getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("jokeurl", link).apply();
-        Log.d("filtercustom","Custom URL:" + link);
+        Log.d("filtercustom", "Custom URL:" + link);
     }
 
     public static float getWidthDp(Context context) {

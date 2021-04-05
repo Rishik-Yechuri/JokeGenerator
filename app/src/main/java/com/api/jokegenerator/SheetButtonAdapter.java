@@ -83,12 +83,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
             Intent updategroup = new Intent("UPDATEGROUP");
             String firstWord = Text.split(" ")[0];
             SheetClickListener.DismissSheet();
-           /* try {
-                jokeGroups = new JSONObject(mContext.getSharedPreferences("_",MODE_PRIVATE).getString("groupmap",""));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
-            //JSONObject groupMap = null;
             try {
                 jokeGroups = returnGroupMap(mContext, jokeGroups);
             } catch (JSONException e) {
@@ -98,7 +92,7 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
 
             JSONObject holdMap = null;
             try {
-                holdMap = new JSONObject(mContext.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "").replace("[","").replace("]","").replace(" ",""));
+                holdMap = new JSONObject(mContext.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "").replace("[","").replace("]",""));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

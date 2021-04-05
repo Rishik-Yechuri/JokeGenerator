@@ -1,6 +1,8 @@
 package com.api.jokegenerator;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +57,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             e.printStackTrace();
         }
         holder.mainLayout.setOnLongClickListener(new jokeClicked(id));
+        if(MainActivity.currentTheme.equals("light")){holder.divider.setBackgroundColor(Color.parseColor("#CCCCCC"));}
     }
 
     public class jokeClicked implements View.OnLongClickListener {
@@ -84,11 +87,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public class ViewHolder extends RecyclerView.ViewHolder {
         LinearLayout mainLayout;
         TextView jokeText;
-
+        View divider;
         public ViewHolder(View itemView) {
             super(itemView);
             mainLayout = itemView.findViewById(R.id.recyclableLayout);
             jokeText = itemView.findViewById(R.id.JokeText);
+            divider = itemView.findViewById(R.id.divider);
         }
     }
 

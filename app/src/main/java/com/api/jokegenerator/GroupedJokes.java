@@ -170,20 +170,6 @@ public class GroupedJokes extends AppCompatActivity {
         for (int x = 0; x < lengthOfList; x++) {
             jokeList.remove(0);
         }
-        //String groupMapString = getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", "");
-        /*String[] splitMap = groupMapString.split("], ");
-        for (int x = 0; x < splitMap.length; x++) {
-            String filteredString = splitMap[x].replaceAll("\\[", "").replaceAll("]", "").replaceAll("\\{", "");
-            filteredString = filteredString.replace("}", "");
-            String[] basicSplit = filteredString.split("=");
-            String groupName = basicSplit[0];
-            String[] tempGroupIDs = null;
-            ArrayList<String> jokesInGroup = new ArrayList<>();
-            if (basicSplit.length > 1) {
-                tempGroupIDs = basicSplit[1].split(", ");
-                jokesInGroup = new ArrayList<>(Arrays.asList(tempGroupIDs));
-            }
-        }*/
         JSONObject groupMapJSON = new JSONObject(getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
         JSONArray key = groupMapJSON.names();
         int keyLength = key != null?key.length():0;

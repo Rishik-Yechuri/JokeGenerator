@@ -20,6 +20,7 @@ public class JokeScreen extends AppCompatActivity {
     //Holds the two tabs,and sets the colors
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joke_screen);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
@@ -28,11 +29,17 @@ public class JokeScreen extends AppCompatActivity {
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-        tabs.setTabTextColors(Color.parseColor("#808080"), Color.parseColor("#FFFFFF"));
-        int color = Color.parseColor("#b30000");
-        tabs.setSelectedTabIndicatorColor(color);
-        tabs.getTabAt(0).setIcon(R.drawable.generateicon);
-        tabs.getTabAt(1).setIcon(R.drawable.savedicon);
-        tabs.getTabAt(2).setIcon(R.drawable.groupsicon);
+        //tabs.setTabTextColors(Color.parseColor("#808080"), Color.parseColor("#FFFFFF"));
+        //int color = Color.parseColor("#b30000");
+        //tabs.setSelectedTabIndicatorColor(color);
+        if(MainActivity.currentTheme.equals("dark")){
+            tabs.getTabAt(0).setIcon(R.drawable.generateicon);
+            tabs.getTabAt(1).setIcon(R.drawable.savedicon);
+            tabs.getTabAt(2).setIcon(R.drawable.groupsicon);
+        }else if(MainActivity.currentTheme.equals("light")){
+            tabs.getTabAt(0).setIcon(R.drawable.generateiconlight);
+            tabs.getTabAt(1).setIcon(R.drawable.savediconlight);
+            tabs.getTabAt(2).setIcon(R.drawable.groupsiconlight);
+        }
     }
 }

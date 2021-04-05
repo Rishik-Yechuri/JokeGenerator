@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
     //Declares an Intent which is used for the BroadcastReceiver
     Intent updateJokes;
     GroupsUpdated groupsUpdated;
-
+    public static String currentTheme = "dark";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        currentTheme = getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).getString("theme","dark");
+        setTheme(currentTheme.equals("dark")?R.style.AppTheme:R.style.AppThemeLight);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Gets the currrent user
@@ -90,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
+    public void setTheme(String themeName){
+        if(themeName.equals("dark")){
+            setTheme(R.style.AppTheme);
+        }
+    }
     public void logIn() {
         //Gets the entered username and password
         String email = editTextEmailAddressLogIn.getText().toString();
