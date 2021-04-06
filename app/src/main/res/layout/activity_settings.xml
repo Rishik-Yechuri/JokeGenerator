@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="top"
-    android:background="#292424"
     android:orientation="vertical"
     tools:context=".Settings">
 
@@ -23,7 +22,6 @@
             android:layout_weight="1"
             android:text="Filters"
             android:textAlignment="center"
-            android:textColor="@color/colorPrimaryVariant"
             android:textSize="27sp" />
 
         <Space
@@ -71,7 +69,6 @@
             android:layout_weight="1"
             android:text="Theme"
             android:textAlignment="center"
-            android:textColor="@color/colorPrimaryVariant"
             android:textSize="27sp" />
 
         <Space

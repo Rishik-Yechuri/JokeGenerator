@@ -5,17 +5,10 @@
     android:id="@+id/recyclableSheetLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#292424"
     android:orientation="vertical"
+    android:background="@color/colorPrimary"
     android:clickable="true"
     android:foreground="?attr/selectableItemBackground">
-   <!-- <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/mainLinearLayout"
-        android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:orientation="vertical">-->
         <Space
             android:layout_width="match_parent"
             android:layout_height="19dp" />
@@ -31,13 +24,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
-                android:textColor="@color/colorPrimaryVariant"
                 android:textSize="16sp" />
 
         </LinearLayout>
         <Space
             android:layout_width="match_parent"
             android:layout_height="19dp" />
-    <!--</LinearLayout>-->
-
 </LinearLayout>

@@ -48,40 +48,27 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
     }
 
     private void initializeSheetRecycler() throws JSONException {
+        if(MainActivity.currentTheme.equals("dark")){getContext().setTheme(R.style.AppTheme);}else{getContext().setTheme(R.style.AppThemeLight);}
         sheetRecyclerView = v.findViewById(R.id.optionSheetRecyclerView);
         sheetRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        JSONObject jokeGroups = new JSONObject(getContext().getSharedPreferences("_",MODE_PRIVATE).getString("groupmap",""));
+        JSONObject jokeGroups = new JSONObject(getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
         JSONArray key = jokeGroups.names();
         String currentGroup = "";
         ArrayList<String> otherGroups = new ArrayList<>();
         int keyLength = key != null ? key.length() : 0;
         for (int i = 0; i < keyLength; ++i) {
-            String groupName = key.getString (i);
-            String value = jokeGroups.getString (groupName);
-            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.replace("[","").replace("]","").split(",")));
-            for(int x=0;x<jokesInGroup.size();x++){
+            String groupName = key.getString(i);
+            String value = jokeGroups.getString(groupName);
+            ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.replace("[", "").replace("]", "").split(",")));
+            for (int x = 0; x < jokesInGroup.size(); x++) {
                 String tempString = jokesInGroup.get(x);
-                tempString = tempString.replace(" ","");
+                tempString = tempString.replace(" ", "");
                 jokesInGroup.remove(x);
-                jokesInGroup.add(x,tempString);
+                jokesInGroup.add(x, tempString);
             }
-            /*jokesInGroup.add("rebegyou");
-            String whyDoesThisNotWORkseriously = String.valueOf(this.getArguments().getString("id"));
-            boolean idFound = false;
-            for(int x=0;x<jokesInGroup.size();x++){
-                int tempID = -1;
-                if(jokesInGroup.get(x).length() > 0){
-                    String tempString = jokesInGroup.get(x).replaceAll(" ","");
-                    tempID = Integer.parseInt(tempString);
-                }
-                if(tempID == Integer.parseInt(this.getArguments().getString("id"))){
-                    idFound = true;
-                    currentGroup = groupName;
-                }
-            }*/
-            if(jokesInGroup.contains(String.valueOf(this.getArguments().getString("id")))){
+            if (jokesInGroup.contains(String.valueOf(this.getArguments().getString("id")))) {
                 currentGroup = groupName;
-            }else if(!groupName.equals("")){
+            } else if (!groupName.equals("")) {
                 otherGroups.add(groupName);
             }
         }
@@ -94,10 +81,11 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         for (int x = 0; x < otherGroups.size(); x++) {
             tempArraylist.add("Move to " + otherGroups.get(x));
         }
-        sheetAdapter = new SheetButtonAdapter(tempArraylist, getContext(),this);
+        sheetAdapter = new SheetButtonAdapter(tempArraylist, getContext(), this);
         sheetAdapter.setJokeID(this.getArguments().getString("id"));
         sheetRecyclerView.setAdapter(sheetAdapter);
     }
+
     private View.OnClickListener jokeClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

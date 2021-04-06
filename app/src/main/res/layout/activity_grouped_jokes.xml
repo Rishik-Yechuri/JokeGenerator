@@ -5,7 +5,6 @@
     android:id="@+id/groupedJokesMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical"
     tools:context=".GroupedJokes">
 
@@ -16,12 +15,10 @@
         android:background="?attr/colorAccent"
         android:elevation="6dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Toolbar" />
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/jokeRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-
 </LinearLayout>

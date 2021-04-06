@@ -455,7 +455,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
     }
 
     public void ConfirmToUnSave(Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         //AlertDialog.Builder builder = new AlertDialog.Builder(context);
         //builder.setTitle(R.string.app_name);
         builder.setMessage("Do you want to unsave this joke?");

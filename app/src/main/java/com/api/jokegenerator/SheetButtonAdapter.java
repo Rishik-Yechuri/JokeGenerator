@@ -61,12 +61,13 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         holder.optionText.setText(groups.get(position));
         View tempView = holder.mainLayout;
         tempView.setOnClickListener(new OptionClicked((String) holder.optionText.getText()));
+        if(MainActivity.currentTheme.equals("light"))tempView.setBackgroundColor(Color.parseColor(String.valueOf("#FFFFFF")));
         if (groups.get(position).equals("Delete")) {
             holder.optionText.setTextColor(Color.RED);
         } else if (groups.get(position).split(" ")[0].equals("Remove")) {
 
         } else {
-            holder.optionText.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryVariant));
+            //holder.optionText.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimaryVariant));
         }
     }
 

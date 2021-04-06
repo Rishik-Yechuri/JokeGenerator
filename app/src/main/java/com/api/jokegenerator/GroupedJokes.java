@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -33,6 +34,7 @@ import static com.api.jokegenerator.Frag2.jokeListIDArray;
 import static com.api.jokegenerator.Frag2.returnJokeString;
 
 public class GroupedJokes extends AppCompatActivity {
+    LinearLayout groupJokesMain;
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
     ArrayList<String> savedJokeIDs;
@@ -46,8 +48,18 @@ public class GroupedJokes extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grouped_jokes);
+        groupJokesMain = findViewById(R.id.groupedJokesMain);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryVariant));
+       // toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryVariant));
+        if(MainActivity.currentTheme.equals("light")){
+            toolbar.getContext().setTheme(R.style.ToolbarLight);
+            toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorSecondaryVariant));
+            groupJokesMain.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        }else /*if(MainActivity.currentTheme.equals("dark"))*/{
+            toolbar.getContext().setTheme(R.style.Toolbar);
+            toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorPrimaryVariant));
+            groupJokesMain.setBackgroundColor(Color.parseColor("#292424"));
+        }
         setSupportActionBar(toolbar);
         extras = getIntent().getExtras();
         getSupportActionBar().setTitle(extras.getString("groupname"));

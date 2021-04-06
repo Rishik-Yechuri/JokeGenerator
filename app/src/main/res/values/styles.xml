@@ -10,6 +10,10 @@
         <item name="popupMenuStyle">@style/PopupMenu</item>
         <item name="tabStyle">@style/AppTabLayout</item>
         <item name="android:textColor">@color/colorPrimaryVariant</item>
+        <item name="android:radioButtonStyle">@style/RadioButton</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogStyle</item>
+        <item name="android:toolbarStyle">@style/Toolbar</item>
+        <item name="android:editTextColor">@color/colorPrimaryVariant</item>
     </style>
     <style name="AppThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
@@ -21,8 +25,20 @@
         <item name="popupMenuStyle">@style/PopupMenuLight</item>
         <item name="tabStyle">@style/AppTabLayoutLight</item>
         <item name="android:textColor">@color/colorSecondaryVariant</item>
+        <item name="android:radioButtonStyle">@style/RadioButtonLight</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogStyleLight</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogStyleLight</item>
+        <item name="android:toolbarStyle">@style/ToolbarLight</item>
+        <item name="android:editTextColor">@color/colorSecondaryVariant</item>
     </style>
-
+    <style name="RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="colorControlActivated">@color/colorSecondaryAccent</item>
+        <item name="android:textColor">@color/colorPrimaryVariant</item>
+    </style>
+    <style name="RadioButtonLight" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="colorControlActivated">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorSecondaryVariant</item>
+    </style>
    <style name="AppTheme.Launcher" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@drawable/startupscreen</item>
     </style>
@@ -81,9 +97,11 @@
     <style name="Toolbar" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <!-- color used by navigation icon and overflow icon -->
         <item name="colorOnPrimary">@color/colorPrimaryVariant</item>
+        <item name="android:titleTextColor">@color/colorPrimaryVariant</item>
     </style>
     <style name="ToolbarLight" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary">
         <!-- color used by navigation icon and overflow icon -->
         <item name="colorOnPrimary">@color/colorSecondaryVariant</item>
+        <item name="android:titleTextColor">@color/colorSecondaryVariant</item>
     </style>
 </resources>

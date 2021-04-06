@@ -1,6 +1,7 @@
 package com.api.jokegenerator;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
@@ -37,10 +39,13 @@ public class Settings extends AppCompatActivity {
     RadioButton lightButton;
     RadioButton darkButton;
     RadioGroup themeGroup;
+    View divider2;
+    View divider3;
     float widthToSetGlobal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         widthToSetGlobal = getWidthDp(getApplicationContext()) + 150;
@@ -85,6 +90,33 @@ public class Settings extends AppCompatActivity {
             lightButton.setChecked(true);
         }else if(currentTheme.equals("dark")){
             darkButton.setChecked(true);
+        }
+        divider2 = findViewById(R.id.divider2);
+        divider3 = findViewById(R.id.divider3);
+        if(MainActivity.currentTheme.equals("light")){
+            divider2.setBackgroundColor(Color.parseColor("#CCCCCC"));
+            divider3.setBackgroundColor(Color.parseColor(String.valueOf("#CCCCCC")));
+        }
+        AppCompatRadioButton rb;
+        rb = new AppCompatRadioButton(getApplicationContext());
+        ColorStateList darkColorList = new ColorStateList(
+                new int[][]{
+                        new int[]{-android.R.attr.state_checked}
+                },
+                new int[]{
+                        R.color.colorPrimarySubtle,
+                }
+        );
+        ColorStateList lightColorList = new ColorStateList(
+                new int[][]{
+                        new int[]{-android.R.attr.state_checked}
+                },
+                new int[]{
+                        R.color.colorSecondarySubtle,
+                }
+        );
+        if(MainActivity.currentTheme.equals("dark")){
+
         }
     }
 

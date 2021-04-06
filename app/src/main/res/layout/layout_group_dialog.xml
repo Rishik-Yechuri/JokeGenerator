@@ -2,10 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@color/colorPrimary">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +22,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:text="Add Group"
-            android:textColor="@color/colorPrimaryVariant"
             android:textSize="20sp" />
 
         <Space
@@ -36,6 +34,8 @@
         android:id="@+id/ediTextGroupName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingRight="60dp"
+        android:paddingLeft="60dp"
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="40dp"
         android:backgroundTint="@color/colorAccent"
@@ -43,7 +43,6 @@
         android:foregroundTint="#ff1a1a"
         android:hint="Group Name"
         android:textAlignment="center"
-        android:textColor="@color/colorPrimaryVariant"
         android:textColorHint="@color/colorPrimarySubtle" />
 
 
@@ -67,8 +66,7 @@
             android:background="@drawable/plainripple"
             android:clickable="true"
             android:elevation="1dp"
-            android:text="CANCEL"
-            android:textColor="@color/colorPrimaryVariant" />
+            android:text="CANCEL" />
 
         <Button
             android:id="@+id/okButton"
@@ -79,8 +77,7 @@
             android:background="@drawable/plainripple"
             android:clickable="true"
             android:elevation="1dp"
-            android:text="OK"
-            android:textColor="@color/colorPrimaryVariant" />
+            android:text="OK" />
 
         <Space
             android:layout_width="wrap_content"
