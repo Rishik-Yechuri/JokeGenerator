@@ -12,6 +12,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -56,7 +57,7 @@ public class Frag2 extends Fragment {
     BroadcastReceiver _updateJokes;
     //Stores jokes,and their IDs
     public static JSONArray jokeList;
-    public static ArrayList<Integer> jokeListIDArray = new ArrayList<>();
+    public static ArrayList<Integer> jokeListIDArray;
     //Used for the RecyclerView
     RecyclerView recyclerView;
     RecyclerViewAdapter adapter;
@@ -66,6 +67,8 @@ public class Frag2 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle onSavedInstance) {
         view = inflater.inflate(R.layout.frag2_layout, container, false);
+        setRetainInstance(true);
+        jokeListIDArray = new ArrayList<>();
         //Creates an IntentFilter that waits for "UPDATEJOKE"
         IntentFilter intentFilter = new IntentFilter("UPDATEJOKE");
         //Sets up stuff for the BroadcastReceiver
@@ -120,11 +123,10 @@ public class Frag2 extends Fragment {
                     //Goes through the saved jokes checking for duplicates
                     boolean canAdd = true;
                     //tempJoke is used to temporarily store a joke from "jokeListArray"
-                    String tempJoke = intent.getExtras().getString("joke");
-                    ;
+                    JSONObject tempJoke = new JSONObject(intent.getExtras().getString("joke"));
                     for (int i = 0; i < jokeList.length(); i++) {
                         //If the received joke is locally saved,set canAdd to false
-                        if (tempJoke.equals(jokeList.get(i))) {
+                        if (tempJoke.getString("id").equals(((JSONObject) (jokeList.get(i))).getString("id"))) {
                             canAdd = false;
                         }
                     }
@@ -165,6 +167,7 @@ public class Frag2 extends Fragment {
                             jokePosition = jokeList.length() - 1;
                         }
                         adapter.notifyItemInserted(jokePosition);
+                        //adapter.notifyDataSetChanged();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -186,7 +189,8 @@ public class Frag2 extends Fragment {
                 }
                 jokeList.length();
                 // jokeList.remove(0);
-                adapter.notifyDataSetChanged();
+                RecyclerViewAdapter temp = (RecyclerViewAdapter) recyclerView.getAdapter();
+                temp.notifyDataSetChanged();
             }
             //showSync();
         }
@@ -255,21 +259,6 @@ public class Frag2 extends Fragment {
                 JSONObject groupMap = SheetButtonAdapter.returnGroupMap(getContext(), jokeGroups);
                 String groupName = updateGroupName(jokeID, getContext());
                 updateJokeGroups(groupName, jokeID, jokeGroups);
-            /*for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
-                String key = entry.getKey();
-                ArrayList<String> jokeIDs = entry.getValue();
-                if (jokeIDs.contains(jokeID)) {
-                    groupName = key;
-                }
-            }*/
-            /*if (!groupName.equals("")) {
-                ArrayList<String> tempJokeList = jokeGroups.get(groupName);
-                tempJokeList.remove(jokeID);
-                jokeGroups.put(groupName, tempJokeList);
-            }*/
-                /*Intent intent = new Intent("UPDATEJOKE");
-                intent.putExtra("joke", String.valueOf(jokeJSON));
-                getContext().sendBroadcast(intent);*/
                 adapter.notifyDataSetChanged();
                 JSONObject finalCurrentJokeJSON = currentJokeJSON;
                 int finalPosition = position;
@@ -305,6 +294,7 @@ public class Frag2 extends Fragment {
                         }
                     }
                 });
+                undoAction.setTextColor(Color.parseColor("#FFFFFF"));
                 undoAction.setActionTextColor(Color.rgb(255, 200, 35));
                 undoAction.show();
                 if (!finalGroupName.equals("")) {
@@ -351,13 +341,6 @@ public class Frag2 extends Fragment {
                 groupName = tempGroupName;
             }
         }
-        /*for (HashMap.Entry<String, ArrayList<String>> entry : groupMap.entrySet()) {
-            String key = entry.getKey();
-            ArrayList<String> jokeIDs = entry.getValue();
-            if (jokeIDs.contains(jokeID)) {
-                groupName = key;
-            }
-        }*/
         return groupName;
     }
 
@@ -373,6 +356,7 @@ public class Frag2 extends Fragment {
     public static JSONObject returnJokeGroups() {
         return jokeGroups;
     }
+
 
     //Calls firebase to delete the joke
     public static void deleteJoke(String id, Context context) throws JSONException {

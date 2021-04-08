@@ -51,6 +51,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
     JSONObject jokeGroupMap;
     BroadcastReceiver _updateGroups;
     FloatingActionButton addFab;
+    GroupDialog dialog;
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -213,9 +214,14 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
     };
 
     public void openDialog() {
-        GroupDialog dialog = new GroupDialog();
+        dialog = new GroupDialog();
         dialog.listener = this;
         dialog.show(getFragmentManager(), "something");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     public void addGroupAndIDs(String name, ArrayList<String> savedIds) throws JSONException {

@@ -556,6 +556,6 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
     public void onDestroy() {
         super.onDestroy();
         disposables.clear();
-        getActivity().unregisterReceiver(_updateJokes);
+        if(_updateJokes!=null) getActivity().unregisterReceiver(_updateJokes);
     }
 }

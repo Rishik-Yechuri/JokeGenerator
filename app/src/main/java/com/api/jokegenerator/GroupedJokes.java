@@ -46,6 +46,7 @@ public class GroupedJokes extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grouped_jokes);
         groupJokesMain = findViewById(R.id.groupedJokesMain);
@@ -55,7 +56,7 @@ public class GroupedJokes extends AppCompatActivity {
             toolbar.getContext().setTheme(R.style.ToolbarLight);
             toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorSecondaryVariant));
             groupJokesMain.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        }else /*if(MainActivity.currentTheme.equals("dark"))*/{
+        }else {
             toolbar.getContext().setTheme(R.style.Toolbar);
             toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorPrimaryVariant));
             groupJokesMain.setBackgroundColor(Color.parseColor("#292424"));

@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
             if (v.getId() == R.id.logInView) {
                 Intent intent = new Intent(getApplicationContext(), SignUp.class);
                 startActivity(intent);
-                finish();
             } else if (v.getId() == R.id.signUpButton) {
                 logIn();
             }
