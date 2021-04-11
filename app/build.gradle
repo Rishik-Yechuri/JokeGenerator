@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"

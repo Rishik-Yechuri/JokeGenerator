@@ -1,28 +1,36 @@
 package com.api.jokegenerator;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
+import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetButtonAdapter.DismissSheet {
@@ -40,15 +48,32 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //super.dismiss();
-        //Button okButton = v.findViewById(R.id.okbutton);
-        //okButton.setOnClickListener(jokeClicked);
 
+        BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                int height = Resources.getSystem().getDisplayMetrics().heightPixels;
+                BottomSheetDialog d = (BottomSheetDialog) dialog;
+                FrameLayout bottomSheet = (FrameLayout) d.findViewById(R.id.design_bottom_sheet);
+                BottomSheetBehavior bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                bottomSheetBehavior.setPeekHeight(height/2);
+            }
+        });
+
+
+        // This is gotten directly from the source of BottomSheetDialog
+        // in the wrapInBottomSheet() method
         return v;
     }
 
     private void initializeSheetRecycler() throws JSONException {
-        if(MainActivity.currentTheme.equals("dark")){getContext().setTheme(R.style.AppTheme);}else{getContext().setTheme(R.style.AppThemeLight);}
+        if (MainActivity.currentTheme.equals("dark")) {
+            getContext().setTheme(R.style.AppTheme);
+        } else {
+            getContext().setTheme(R.style.AppThemeLight);
+        }
         sheetRecyclerView = v.findViewById(R.id.optionSheetRecyclerView);
         sheetRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         JSONObject jokeGroups = new JSONObject(getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
