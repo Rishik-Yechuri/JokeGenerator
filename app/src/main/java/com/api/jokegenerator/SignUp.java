@@ -22,6 +22,8 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 
+import static com.api.jokegenerator.MainActivity.currentTheme;
+
 public class SignUp extends AppCompatActivity {
     //Used for authentication
     private FirebaseAuth mAuth;
@@ -33,11 +35,12 @@ public class SignUp extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(currentTheme.equals("dark")?R.style.AppTheme:R.style.AppThemeLight);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2.", 9099);
+        mAuth.useEmulator("10.0.2.2", 9099);
         //Initializes views and sets onclicklisteners
         logInView = findViewById(R.id.logInView);
         logInView.setOnClickListener(new LogInClicked());

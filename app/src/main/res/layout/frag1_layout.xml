@@ -7,6 +7,37 @@
     tools:context=".Frag1">
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.023">
+
+
+        <Button
+            android:id="@+id/downloadButton"
+            android:layout_width="60dp"
+            android:layout_height="31dp"
+            android:background="@drawable/downloadicon" />
+
+        <Button
+            android:id="@+id/optionbutton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/moreoptions" />
+
+        <Space
+            android:id="@+id/spaceForDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/jokeQuestionText"
         android:layout_width="338dp"
@@ -50,27 +81,4 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.898" />
 
-    <Button
-        android:id="@+id/downloadButton"
-        android:layout_width="60dp"
-        android:layout_height="31dp"
-        android:background="@drawable/downloadicon"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.814"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.022" />
-
-    <Button
-        android:id="@+id/optionbutton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/moreoptions"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.956"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.017" />
 </androidx.constraintlayout.widget.ConstraintLayout>

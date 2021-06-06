@@ -18,6 +18,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Space;
+import android.widget.TextView;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -41,6 +43,13 @@ public class Settings extends AppCompatActivity {
     RadioGroup themeGroup;
     View divider2;
     View divider3;
+    TextView filters;
+    Space filtersSpace;
+    Space space2;
+    Space space3;
+    Space space4;
+    Space space5;
+    Space space6;
     float widthToSetGlobal;
 
     @Override
@@ -48,6 +57,20 @@ public class Settings extends AppCompatActivity {
         if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        filters = findViewById(R.id.textView);
+        filtersSpace = findViewById(R.id.filtersSpace);
+        space2 = findViewById(R.id.space2);
+        space3 = findViewById(R.id.space3);
+        space4 = findViewById(R.id.space4);
+        space5 = findViewById(R.id.space5);
+        space6 = findViewById(R.id.space6);
+        setViewWidthInInches(.03,filtersSpace);
+        setViewWidthInInches(.03,space2);
+        setViewWidthInInches(.09,space3);
+        setViewWidthInInches(.03,space4);
+        setViewWidthInInches(.03,space5);
+        setViewWidthInInches(.03,space6);
+
         widthToSetGlobal = getWidthDp(getApplicationContext()) + 150;
         widthToSetGlobal = 580;
         filterChips = findViewById(R.id.filterChips);
@@ -124,7 +147,7 @@ public class Settings extends AppCompatActivity {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
             if (group == findViewById(R.id.themeGroup)) {
-                if (checkedId == 2131230947) {
+                if (checkedId == 2131230949) {
                     getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("theme", "light").apply();
                 }
                 if (checkedId == 2131230847) {
@@ -236,7 +259,14 @@ public class Settings extends AppCompatActivity {
             changeJokeURL();
         }
     };
-
+    public void setViewWidthInInches(double inches, View v) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        float mXDpi = metrics.xdpi;
+        int twoInches = (int) Math.round(inches*mXDpi);
+        v.setLayoutParams(new LinearLayout.LayoutParams(twoInches, ViewGroup.LayoutParams.WRAP_CONTENT));
+        v.requestLayout();
+    }
     public float convertDpToPx(Context context, float dp) {
         return dp * context.getResources().getDisplayMetrics().density;
     }

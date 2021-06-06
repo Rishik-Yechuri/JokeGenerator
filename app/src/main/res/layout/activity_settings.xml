@@ -13,21 +13,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <Space
+            android:id="@+id/filtersSpace"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            />
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="0dp"
+            android:layout_width="90dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_weight="1"
             android:text="Filters"
             android:textAlignment="center"
             android:textSize="27sp" />
 
-        <Space
+       <!-- <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2" />
+            android:layout_weight="1"
+            android:layout_weight="2" />-->
     </LinearLayout>
 
     <HorizontalScrollView
@@ -39,14 +44,20 @@
             android:id="@+id/holdChipsLinear"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginStart="7dp"
-            android:layout_marginEnd="7dp"
             android:orientation="horizontal">
-
+            <Space
+                android:id="@+id/space2"
+                android:layout_height="match_parent"
+                android:layout_width="0dp" />
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/filterChips"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"></com.google.android.material.chip.ChipGroup>
+            <Space
+                android:id="@+id/space3"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -60,7 +71,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
+        <Space
+            android:id="@+id/space4"
+            android:layout_height="match_parent"
+            android:layout_width="0dp" />
         <TextView
             android:id="@+id/themeText"
             android:layout_width="0dp"
@@ -68,13 +82,12 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:text="Theme"
-            android:textAlignment="center"
             android:textSize="27sp" />
 
         <Space
-            android:layout_width="0dp"
+            android:id="@+id/space5"
             android:layout_height="match_parent"
-            android:layout_weight="2" />
+            android:layout_width="0dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,9 +96,9 @@
         android:orientation="horizontal">
 
         <Space
-            android:layout_width="0dp"
+            android:id="@+id/space6"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_width="0dp" />
 
         <RadioGroup
             android:layout_width="0dp"

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         editTextPasswordLogIn = findViewById(R.id.editTextPasswordLogIn);
         //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2.", 9099);
+        mAuth.useEmulator("10.0.2.2", 9099);
         groupsUpdated = new GroupsUpdated(getApplicationContext());
     }
 

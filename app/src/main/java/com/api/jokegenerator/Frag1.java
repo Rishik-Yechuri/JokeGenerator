@@ -106,11 +106,13 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
     FirebaseAuth mAuth;
 
     //Declare values for Views
+    View view;
     Button generateJokeButton;
     Button downloadButton;
     Button optionsButton;
     TextView jokeQuestionText;
     TextView punchlineText;
+    Space spaceForDownload;
 
     //Only for rxJava
     String type = "";
@@ -126,13 +128,15 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.frag1_layout, container, false);
+        view = inflater.inflate(R.layout.frag1_layout, container, false);
         //Initialize Views
         optionsButton = view.findViewById(R.id.optionbutton);
         generateJokeButton = view.findViewById(R.id.generateJokeButton);
         jokeQuestionText = view.findViewById(R.id.jokeQuestionText);
         punchlineText = view.findViewById(R.id.punchlineText);
         downloadButton = view.findViewById(R.id.downloadButton);
+        spaceForDownload = view.findViewById(R.id.spaceForDownload);
+
 
         //Set Listeners for Buttons
         generateJokeButton.setOnClickListener(new GenerateJokeListener());
@@ -143,7 +147,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         mAuth = FirebaseAuth.getInstance();
 
         //context = getActivity();
-
+        setViewWidthInInches(.02,spaceForDownload);
         try {
             //update jokeJSON from shared preferences
             jokeJSON = new JSONObject(Objects.requireNonNull(((Objects.requireNonNull(getActivity()))).getSharedPreferences("_", MODE_PRIVATE).getString("joke", "")));
@@ -208,6 +212,13 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         if (item.getItemId() == R.id.settings) {
             Intent intent = new Intent(getActivity(), Settings.class);
             startActivity(intent);
+        }else if(item.getItemId() == R.id.logout){
+            FirebaseAuth mAuth;
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.signOut();
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+            getActivity().finish();
         }
         return false;
     }
@@ -551,6 +562,14 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         }
     }
 
+    public void setViewWidthInInches(double inches, View v) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        float mXDpi = metrics.xdpi;
+        int twoInches = (int) Math.round(inches*mXDpi);
+        v.setLayoutParams(new LinearLayout.LayoutParams(twoInches, ViewGroup.LayoutParams.WRAP_CONTENT));
+        v.requestLayout();
+    }
     //Gets rid of uneccesary data when destroyed
     @Override
     public void onDestroy() {

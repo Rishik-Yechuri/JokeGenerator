@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#292424"
     tools:context=".MainActivity">
 
 
@@ -18,7 +17,6 @@
         android:foregroundTint="#ff1a1a"
         android:hint="email"
         android:inputType="textEmailAddress"
-        android:textColor="#FFFFFF"
         android:textColorHint="#808080"
         android:textCursorDrawable="@drawable/cursorcolor"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -37,7 +35,6 @@
         android:foregroundTint="#ff1a1a"
         android:hint="password"
         android:inputType="textPassword"
-        android:textColor="#FFFFFF"
         android:textColorHint="#808080"
         android:textCursorDrawable="@drawable/cursorcolor"
         app:layout_constraintBottom_toBottomOf="parent"
