@@ -106,6 +106,7 @@ public class Frag2 extends Fragment {
         new ItemTouchHelper(jokeTouched).attachToRecyclerView(recyclerView);
         adapter = new RecyclerViewAdapter(jokeList, getContext(), getFragmentManager());
         recyclerView.setAdapter(adapter);
+        jokeGroups = new JSONObject();
     }
 
     public class SyncUpdate extends BroadcastReceiver {
