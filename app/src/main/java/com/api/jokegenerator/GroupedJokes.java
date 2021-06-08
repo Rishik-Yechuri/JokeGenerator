@@ -34,8 +34,10 @@ import static com.api.jokegenerator.Frag2.jokeListIDArray;
 import static com.api.jokegenerator.Frag2.returnJokeString;
 
 public class GroupedJokes extends AppCompatActivity {
+    //Initializes views
     LinearLayout groupJokesMain;
     RecyclerView recyclerView;
+    //Initializes other things
     RecyclerViewAdapter adapter;
     ArrayList<String> savedJokeIDs;
     JSONArray allJokes = new JSONArray();
@@ -46,12 +48,15 @@ public class GroupedJokes extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Sets the colors based on the theme
         if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grouped_jokes);
+        //Declares groupJokesMain
         groupJokesMain = findViewById(R.id.groupedJokesMain);
+        //Initialize toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
-       // toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryVariant));
+        //Sets the colors of the toolbar based on the theme
         if(MainActivity.currentTheme.equals("light")){
             toolbar.getContext().setTheme(R.style.ToolbarLight);
             toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorSecondaryVariant));
@@ -61,17 +66,23 @@ public class GroupedJokes extends AppCompatActivity {
             toolbar.setTitleTextColor(ContextCompat.getColor(getApplicationContext(),R.color.colorPrimaryVariant));
             groupJokesMain.setBackgroundColor(Color.parseColor("#292424"));
         }
+        //Add the toolbar up top
         setSupportActionBar(toolbar);
+        //Set the title of the toolbar to the group name
         extras = getIntent().getExtras();
         getSupportActionBar().setTitle(extras.getString("groupname"));
+        //Enable the back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         try {
+            //Get the stored jokes
             allJokes = StoreJokesLocally.returnSavedJokes(getApplicationContext());
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //Display all the jokes
         initializeRecyclerView();
         try {
+            //Update the group
             updateJokesInGroup(extras.getStringArrayList("jokesingroup"), extras.getString("groupname"), null);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -86,16 +97,19 @@ public class GroupedJokes extends AppCompatActivity {
         getApplication().registerReceiver(_syncUpdate, intentFilter2);
     }
 
+    //Go back when the back button is pressed
     @Override
     public boolean onSupportNavigateUp() {
         return goBack();
     }
 
+    //Go back when the physical back button is pressed
     @Override
     public void onBackPressed() {
         goBack();
     }
 
+    //Goes back to the previous activity,and adds a animation
     public boolean goBack() {
         getSupportFragmentManager().popBackStack();
         finish();
@@ -103,10 +117,13 @@ public class GroupedJokes extends AppCompatActivity {
         return true;
     }
 
+    //Gets called whenever there is a update
     public class SyncUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Gets the instruction from the broadcast
             String instruction = intent.getExtras().getString("instruction");
+            //Saves the joke if the instruction is to save
             if (instruction.equals("save")) {
                 JSONObject tempJokeHolder = null;
                 String jokeString = null;
@@ -166,8 +183,8 @@ public class GroupedJokes extends AppCompatActivity {
         }
     }
 
+    //When it is called,a joke is removed from the group
     public class GroupUpdate extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
@@ -178,6 +195,7 @@ public class GroupedJokes extends AppCompatActivity {
         }
     }
 
+    //Removes a joke from the group
     public void updateJokesInGroup(ArrayList<String> savedIDs, String tempGroupName, String idToRemove) throws JSONException {
         int lengthOfList = jokeList.length();
         for (int x = 0; x < lengthOfList; x++) {
@@ -208,10 +226,11 @@ public class GroupedJokes extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
-        // Frag2.jokeList = jokeList;
+        //Notifies the adapter about the new data
         adapter.notifyDataSetChanged();
     }
 
+    //Initializes the things needed for the recycler view
     private void initializeRecyclerView() {
         recyclerView = findViewById(R.id.jokeRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -220,6 +239,7 @@ public class GroupedJokes extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
+    //Responds when a item is swiped left on
     ItemTouchHelper.SimpleCallback jokeTouched = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -283,9 +303,11 @@ public class GroupedJokes extends AppCompatActivity {
                 }
             }
             adapter.notifyDataSetChanged();
+            //Creates some final variables to be used if undo is clicked
             JSONObject finalCurrentJokeJSON = currentJokeJSON;
             int finalPosition = position;
             String finalGroupName = groupName;
+            //Create an undo option
             Snackbar undoAction = Snackbar.make(findViewById(R.id.groupedJokesMain), "Joke Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -311,6 +333,7 @@ public class GroupedJokes extends AppCompatActivity {
                     }
                 }
             });
+            //Set some properties for the undo option,and show it
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
             if (!finalGroupName.equals("")) {
@@ -319,6 +342,7 @@ public class GroupedJokes extends AppCompatActivity {
             }
         }
 
+        //Adds some effects to the swipe
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive).addSwipeLeftBackgroundColor(Color.RED).addSwipeLeftActionIcon(R.drawable.deleteicon).create().decorate();

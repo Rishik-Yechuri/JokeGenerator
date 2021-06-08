@@ -44,6 +44,7 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import static android.content.Context.MODE_PRIVATE;
 
 public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface {
+    //Declares variables,and other things
     View view;
     ArrayList<String> jokeGroups;
     RecyclerView groupRecyclerView;
@@ -55,12 +56,14 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
 
     @Nullable
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //Initializes the main view
         view = inflater.inflate(R.layout.activity_groups_frag, container, false);
         try {
             initializeRecyclerView();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //Declares everything
         _updateGroups = new GroupUpdate();
         IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
         getActivity().registerReceiver(_updateGroups, intentFilter);
@@ -69,6 +72,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         return view;
     }
 
+    //Is called from another class
     @Override
     public void okClicked(String groupName) throws JSONException {
         jokeGroups.add(groupName);
@@ -78,17 +82,20 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         addGroupAndIDs(groupName, null);
     }
 
+    //Gets called when there is an update
     public class GroupUpdate extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             try {
-                updateGroups(/*intent.getExtras().getString("id")*/);
+                //Calls the function that updates the groups
+                updateGroups();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    //Initializes the recycler view and all the things that are necessary for it
     private void initializeRecyclerView() throws JSONException {
         groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
         groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -100,27 +107,30 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         updateGroups();
     }
 
+    //Gets the groups from shared preferences,and updates the recycler view
     public void updateGroups() throws JSONException {
         jokeGroups.clear();
-        //jokeGroupMap.;
 
         JSONObject groupMapJSON = new JSONObject(getContext().getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
         JSONArray key = groupMapJSON.names();
         int keyLength = 0;
-        if(key != null){keyLength = key.length();}
+        if (key != null) {
+            keyLength = key.length();
+        }
         for (int i = 0; i < keyLength; ++i) {
-            String groupName = key.getString (i);
-            String value = groupMapJSON.getString (groupName);
+            String groupName = key.getString(i);
+            String value = groupMapJSON.getString(groupName);
             ArrayList<String> jokesInGroup = new ArrayList<>(Arrays.asList(value.split(",")));
             jokeGroupMap.remove(groupName);
-            if(!groupName.equals("")){
-                jokeGroupMap.put(groupName,jokesInGroup);
+            if (!groupName.equals("")) {
+                jokeGroupMap.put(groupName, jokesInGroup);
                 jokeGroups.add(groupName);
             }
         }
         groupAdapter.notifyDataSetChanged();
     }
 
+    //Responds when an item is swiped left
     ItemTouchHelper.SimpleCallback jokeTouched = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -135,15 +145,20 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             groupPosition = viewHolder.getAdapterPosition();
             groupString = jokeGroups.remove(viewHolder.getAdapterPosition());
             ArrayList<String> jokesSavedInGroup = new ArrayList(Arrays.asList(jokeGroupMap.remove(groupString)));
+            //Update the shared preferences
             getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(jokeGroupMap)).apply();
+            //Notify the adapter of the new data
             groupAdapter.notifyDataSetChanged();
             try {
+                //Remove the group
                 removeGroup(groupString, getContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            //Initializes some final variables to be used when undo is clicked
             String finalGroup = groupString;
             int finalGroupPosition = groupPosition;
+            //Add an undo option
             Snackbar undoAction = Snackbar.make(view.findViewById(R.id.groupMainLayout), "Group Removed", Snackbar.LENGTH_LONG).setAction("UNDO", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -163,10 +178,12 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                     }
                 }
             });
+            //Modify the colors,and show the undo snack
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
             undoAction.show();
         }
 
+        //Add decoration to the swipe
         @Override
         public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
             new RecyclerViewSwipeDecorator.Builder(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -178,6 +195,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         }
     };
 
+    //Remove a group from firebase
     public void removeGroup(String name, Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
@@ -206,6 +224,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                 });
     }
 
+    //Whenever the add group button is clicked,show a dialog
     View.OnClickListener addClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -219,11 +238,13 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
         dialog.show(getFragmentManager(), "something");
     }
 
+    //Save the instance state
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
 
+    //Add a group to firebase,then add jokes to that group
     public void addGroupAndIDs(String name, ArrayList<String> savedIds) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();

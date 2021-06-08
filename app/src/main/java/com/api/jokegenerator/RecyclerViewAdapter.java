@@ -57,7 +57,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //Sets a long click listener on the main layout
         holder.mainLayout.setOnLongClickListener(new jokeClicked(id));
+        //Changes the divider color based on the theme
         if(MainActivity.currentTheme.equals("light")){holder.divider.setBackgroundColor(Color.parseColor("#CCCCCC"));}
     }
 
@@ -70,6 +72,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View v) {
+            //Shows the bottom sheet when long pressed
             JokeBottomSheet bottomSheet = new JokeBottomSheet();
             Bundle bundle = new Bundle();
             bundle.putString("id", String.valueOf(id));
@@ -80,6 +83,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     }
 
+    //Returns the item count in the adapter
     @Override
     public int getItemCount() {
         return jokes.length();
@@ -91,6 +95,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View divider;
         public ViewHolder(View itemView) {
             super(itemView);
+            //Initializes the views that are used
             mainLayout = itemView.findViewById(R.id.recyclableLayout);
             jokeText = itemView.findViewById(R.id.JokeText);
             divider = itemView.findViewById(R.id.divider);

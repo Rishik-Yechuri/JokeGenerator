@@ -23,31 +23,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GroupsUpdated {
+    //Declare some things
     BroadcastReceiver _updateJokes;
     Context context;
 
     public GroupsUpdated(Context context) {
         this.context = context;
+        //Create a Intent,and listen for broadcasts
         IntentFilter intentFilter = new IntentFilter("UPDATEGROUP");
         _updateJokes = new UpdateServerGroups();
         context.registerReceiver(_updateJokes, intentFilter);
     }
 
+    //When it is called,server side jokes are updated
     public class UpdateServerGroups extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //Checks if the instruction is to add a joke to a group
             if (intent.getExtras() != null && intent.getExtras().getString("grouptoaddto") != null) {
                 try {
                     addJokeToGroup(intent.getExtras().getString("idlistotaddtogroup"), intent.getExtras().getString("grouptoaddto"), context);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }  if(intent.getExtras() != null && intent.getExtras().getString("grouptoremovefrom") != null) {
+            }
+            //Checks if the instruction is to remove a joke from a group
+            if(intent.getExtras() != null && intent.getExtras().getString("grouptoremovefrom") != null) {
                 try {
                     String idList = intent.getExtras().getString("idlistoremovefromgroup").replace(",","").replace("[","").replace("]","");
-                   // if(idList != null){
                         removeJokeFromGroup(idList, intent.getExtras().getString("grouptoremovefrom"), context);
-                    //}
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -55,6 +59,7 @@ public class GroupsUpdated {
         }
     }
 
+    //Adds a joke to a group in firebase
     public static void addJokeToGroup(String id, String groupName, Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();
@@ -85,6 +90,7 @@ public class GroupsUpdated {
                 });
     }
 
+    //Removes a joke from a group in firebase
     public static void removeJokeFromGroup(String id, String groupName, Context context) throws JSONException {
         final String[] idToken = {""};
         Map<String, Object> data = new HashMap<>();

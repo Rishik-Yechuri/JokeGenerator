@@ -132,17 +132,6 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                     e.printStackTrace();
                 }
             } else {
-                /*if (!groupName.equals("")) {
-                    ArrayList<String> tempJokeList = null;
-                    try {
-                        tempJokeList = new ArrayList(Arrays.asList(jokeGroups.get(groupName).toString().split(",")));
-                        //tempJokeList = jokeGroups.get(groupName);
-                        tempJokeList.remove(jokeID);
-                        jokeGroups.put(groupName, tempJokeList);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }*/
                 if (firstWord.equals("Delete")) {
                     Intent deleteJoke = new Intent("UPDATEJOKE");
                     try {
@@ -162,18 +151,9 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
                         }
                         groupToMoveTo += nameParts[x];
                     }
-                    /*groupName = "";
-                    for (int x = 2; x < nameParts.length; x++) {
-                        if (x != 2) {
-                            groupName += " ";
-                        }
-                        groupName += nameParts[x];
-                    }*/
                     ArrayList<String> jokeListAdd = null;
                     try {
-                        //ArrayList<String> arrayList = new ArrayList(Arrays.asList(jokeGroups.get(groupName)));
                         jokeListAdd = new ArrayList(Arrays.asList(jokeGroups.get(groupToMoveTo).toString().replace("[", "").replace("]", "").replace("null", "").split(",")));
-                        //jokeListAdd = jokeGroups.get(groupName);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -196,6 +176,7 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     }
 
+    //Called to dismiss the bottom sheet
     interface DismissSheet {
         void DismissSheet();
     }
@@ -222,6 +203,7 @@ public class SheetButtonAdapter extends RecyclerView.Adapter<SheetButtonAdapter.
         }
     }
 
+    //Converts the groups and stored jokes into a JSON object,and returns it
     public static JSONObject returnGroupMap(Context context, JSONObject jokeGroups) throws JSONException {
         JSONObject holdMap = new JSONObject(context.getSharedPreferences("_", MODE_PRIVATE).getString("groupmap", ""));
         JSONArray key = holdMap.names();

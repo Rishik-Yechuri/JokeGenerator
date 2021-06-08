@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Settings extends AppCompatActivity {
+    //Declares views
     ChipGroup filterChips;
     ArrayList<String> chipString;
     ArrayList<Chip> chipList;
@@ -54,9 +55,11 @@ public class Settings extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Gets "currentTheme" and sets the theme based on that
         if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        //Initializes views
         filters = findViewById(R.id.textView);
         filtersSpace = findViewById(R.id.filtersSpace);
         space2 = findViewById(R.id.space2);
@@ -64,6 +67,7 @@ public class Settings extends AppCompatActivity {
         space4 = findViewById(R.id.space4);
         space5 = findViewById(R.id.space5);
         space6 = findViewById(R.id.space6);
+        //Set the position of some views in inches
         setViewWidthInInches(.03,filtersSpace);
         setViewWidthInInches(.03,space2);
         setViewWidthInInches(.09,space3);
@@ -71,9 +75,12 @@ public class Settings extends AppCompatActivity {
         setViewWidthInInches(.03,space5);
         setViewWidthInInches(.03,space6);
 
+        //Set the width(used for the scroll view)
         widthToSetGlobal = getWidthDp(getApplicationContext()) + 150;
         widthToSetGlobal = 580;
+        //Initialize another view
         filterChips = findViewById(R.id.filterChips);
+        //Arraylists are used to store data on the filters
         categories = new ArrayList<>(Arrays.asList("Programming", "Misc", "Dark", "Pun", "Spooky", "Christmas"));
         blacklisted = new ArrayList<>(Arrays.asList("nsfw", "religious", "political", "racist", "sexist", "explicit"));
         numOfPartsString = new ArrayList<>(Arrays.asList("single", "twopart"));
@@ -108,6 +115,7 @@ public class Settings extends AppCompatActivity {
         themeGroup.setOnCheckedChangeListener(themeChanged);
         lightButton = findViewById(R.id.lightButton);
         darkButton = findViewById(R.id.darkButton);
+        //Sets colors based on the theme
         String currentTheme = getApplicationContext().getSharedPreferences("_",MODE_PRIVATE).getString("theme","dark");
         if(currentTheme.equals("light")){
             lightButton.setChecked(true);
@@ -142,7 +150,7 @@ public class Settings extends AppCompatActivity {
 
         }
     }
-
+    //When the theme is changed,it is saved in a shared preference
     RadioGroup.OnCheckedChangeListener themeChanged = new RadioGroup.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -157,6 +165,7 @@ public class Settings extends AppCompatActivity {
         }
     };
 
+    //Set which chips should be checked by default
     public void setDefaultChips() {
         ArrayList<String> defaultChipList = new ArrayList<String>(Arrays.asList("Single", "Twopart", "Programming", "Misc", "Spooky", "Christmas", "Political", "Pun"));
         for (int x = 0; x < chipString.size(); x++) {
@@ -167,6 +176,7 @@ public class Settings extends AppCompatActivity {
         }
     }
 
+    //Create a URL given all the data
     public void changeJokeURL() {
         String link = "https://v2.jokeapi.dev/joke/";
         String categoriesString = "";
@@ -219,24 +229,27 @@ public class Settings extends AppCompatActivity {
         }
         link += urlEnding;
         getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("jokeurl", link).apply();
-        Log.d("filtercustom", "Custom URL:" + link);
     }
 
+    //Get the width of the screen in dp
     public static float getWidthDp(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
         return dpWidth;
     }
 
+    //Gets called when a filter chip is clicked
     CompoundButton.OnCheckedChangeListener filterChipChecked = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            //Updates the width
             if (isChecked) {
                 widthToSetGlobal += 20;
             } else {
                 widthToSetGlobal -= 20;
             }
             filterChips.setLayoutParams(new LinearLayout.LayoutParams((int) convertDpToPx(getApplicationContext(), widthToSetGlobal), ViewGroup.LayoutParams.MATCH_PARENT));
+            //Updates the data
             ArrayList<String> savedChips = new ArrayList<>();
             String stringOfArray = getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).getString("savedchips", "");
             if (stringOfArray != "") {
@@ -255,10 +268,13 @@ public class Settings extends AppCompatActivity {
                     stringToSave += ".";
                 }
             }
+            //Stores the new data in a shared preference
             getApplicationContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("savedchips", stringToSave).apply();
+            //Gets the new URL
             changeJokeURL();
         }
     };
+    //Used to set the width of a view in inches
     public void setViewWidthInInches(double inches, View v) {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -267,6 +283,7 @@ public class Settings extends AppCompatActivity {
         v.setLayoutParams(new LinearLayout.LayoutParams(twoInches, ViewGroup.LayoutParams.WRAP_CONTENT));
         v.requestLayout();
     }
+    //Converts dp to pixels
     public float convertDpToPx(Context context, float dp) {
         return dp * context.getResources().getDisplayMetrics().density;
     }

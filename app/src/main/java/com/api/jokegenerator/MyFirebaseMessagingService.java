@@ -74,6 +74,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
         return updateJokes;
     }
+    //Returns the current token
     public static String getToken(Context context) {
         return context.getSharedPreferences("_", MODE_PRIVATE).getString("fb", "empty");
     }

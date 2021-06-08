@@ -56,6 +56,7 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
         groupClicked(holder.mainLayout,groupNames.get(position));
     }
 
+    //Returns the number of items in the adapter
     @Override
     public int getItemCount() {
         return groupNames.size();
@@ -67,6 +68,7 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
         View divider;
         public ViewHolder(View itemView) {
             super(itemView);
+            //Initializes the views that will be used
             mainLayout = itemView.findViewById(R.id.recyclableLayout);
             jokeText = itemView.findViewById(R.id.JokeText);
             divider = itemView.findViewById(R.id.divider);
@@ -76,16 +78,19 @@ public class JokeGroupAdapter extends RecyclerView.Adapter<JokeGroupAdapter.View
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Creates an intent,and adds the group name
                 Intent intent = new Intent(mContext, GroupedJokes.class);
                 intent.putExtra("groupname",str);
                 try {
                     String thing = String.valueOf(groupMap.get(str));
                     ArrayList listToSend = new ArrayList(Arrays.asList(groupMap.get(str).toString().replace("[","").replace("]","").replace(" ","").split(",")));
+                    //Adds the jokes in the group
                     intent.putExtra("jokesingroup",listToSend);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 mContext.startActivity(intent);
+                //Replaces the default animation
                 ((Activity)mContext).overridePendingTransition(R.anim.slide_in_right,R.anim.no_animation);
             }
         });

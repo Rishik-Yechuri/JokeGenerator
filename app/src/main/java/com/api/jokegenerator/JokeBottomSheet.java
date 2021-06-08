@@ -49,6 +49,7 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
             e.printStackTrace();
         }
 
+        //Create the bottom sheet,and set it behaviours
         BottomSheetDialog dialog = (BottomSheetDialog) getDialog();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -61,13 +62,10 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
                 bottomSheetBehavior.setPeekHeight(height/2);
             }
         });
-
-
-        // This is gotten directly from the source of BottomSheetDialog
-        // in the wrapInBottomSheet() method
         return v;
     }
 
+    //Gets all the joke data,and notifies the recycler view
     private void initializeSheetRecycler() throws JSONException {
         if (MainActivity.currentTheme.equals("dark")) {
             getContext().setTheme(R.style.AppTheme);
@@ -118,6 +116,7 @@ public class JokeBottomSheet extends BottomSheetDialogFragment implements SheetB
         }
     };
 
+    //Called from another class
     @Override
     public void DismissSheet() {
         super.dismiss();

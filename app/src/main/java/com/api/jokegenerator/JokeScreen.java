@@ -21,19 +21,19 @@ public class JokeScreen extends AppCompatActivity {
     //Holds the two tabs,and sets the colors
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Gets "currentTheme" and sets the theme based on that
         if(MainActivity.currentTheme.equals("dark")){setTheme(R.style.AppTheme);}else{setTheme(R.style.AppThemeLight);}
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_joke_screen);
-        Toast.makeText(getApplicationContext(),"onCreate called",Toast.LENGTH_SHORT).show();
+        //SectionsPagerAdapter is used for the tbas
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
+        //Tabs can be added to viewpager
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setOnTouchListener((v, event) -> true);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-        //tabs.setTabTextColors(Color.parseColor("#808080"), Color.parseColor("#FFFFFF"));
-        //int color = Color.parseColor("#b30000");
-        //tabs.setSelectedTabIndicatorColor(color);
+        //Sets the icons based on the theme
         if(MainActivity.currentTheme.equals("dark")){
             tabs.getTabAt(0).setIcon(R.drawable.generateicon);
             tabs.getTabAt(1).setIcon(R.drawable.savedicon);
