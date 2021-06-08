@@ -137,7 +137,6 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         downloadButton = view.findViewById(R.id.downloadButton);
         spaceForDownload = view.findViewById(R.id.spaceForDownload);
 
-
         //Set Listeners for Buttons
         generateJokeButton.setOnClickListener(new GenerateJokeListener());
         downloadButton.setOnClickListener(new GenerateJokeListener());
@@ -181,7 +180,6 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         //jsonObject is updated to be equal to jokeJSON(there should only be one object to store current joke, but for now there are two objects)
         jsonObject = jokeJSON;
         try {
-            //checkIfJokeSavedFirebase();
             checkIfJokeSaved();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -207,11 +205,15 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         popup.show();
     }
 
+    //Gets called when a menu button is clicked
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        //Checks if the settings button is clicked
         if (item.getItemId() == R.id.settings) {
+            //Goes to the settings activity
             Intent intent = new Intent(getActivity(), Settings.class);
             startActivity(intent);
+            //checks if the logout button is clicked
         }else if(item.getItemId() == R.id.logout){
             FirebaseAuth mAuth;
             mAuth = FirebaseAuth.getInstance();
@@ -235,8 +237,10 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
             else if (v.getId() == R.id.downloadButton) {
                 try {
                     if (jokeSaved) {
+                        //Asks for confirmation to unsave if the joke is already saved
                         ConfirmToUnSave(getActivity());
                     } else {
+                        //Otherwise the joke is downloaded
                         downloadJoke(v);
                     }
                 } catch (JSONException e) {
@@ -246,6 +250,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         }
     }
 
+    //Opens a popup when called
     class OpenMenuListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -400,36 +405,40 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
             @Override
             public void onComplete() {
                 /*Change download icon  to check to indicate the joke is saved.
-                Show toast to show joke is saved. Set jokeSaved to true*/
+                Set jokeSaved to true*/
                 v.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
-                /*Intent intent = new Intent("UPDATEJOKE");
-                intent.putExtra("instruction","save");
-                intent.putExtra("joke", String.valueOf(jokeJSON));
-                getContext().sendBroadcast(intent);*/
-                Toast.makeText(getActivity(), "Joke Added", Toast.LENGTH_SHORT).show();
                 jokeSaved = true;
             }
         });
     }
 
     public void deleteJoke() throws JSONException {
+        //Gets the name of the group from the joke that is being deleted
         String groupName = Frag2.updateGroupName(jsonObject.getString("id"), getContext());
+        //Updates the groups in Frag2
         Frag2.updateJokeGroups(groupName, jsonObject.getString("id"), Frag2.returnJokeGroups());
+        //Updates the sharedpreferences of the groups
         getContext().getSharedPreferences("_", MODE_PRIVATE).edit().putString("groupmap", String.valueOf(Frag2.returnJokeGroups())).apply();
+        //Creates a intent
         Intent updategroup = new Intent("UPDATEGROUP");
+        //Adds extra with the name of the group to remove
         updategroup.putExtra("grouptoremovefrom",groupName);
+        //Creates an arraylist of all the jokes in the current group
         ArrayList<String> jokesToAddToGroup = new ArrayList<>(Arrays.asList(jsonObject.getString("id")));
         updategroup.putExtra("idlistoremovefromgroup",String.valueOf(jokesToAddToGroup));
+        //Sends a broadcast
         getContext().sendBroadcast(updategroup);
+        //Deletes the joke from the shared preferences
         StoreJokesLocally.deleteJoke(jokeJSON.getString("id"), getActivity());
         final String[] idToken = {""};
+        //Stores data to be sent to firebase
         Map<String, Object> data = new HashMap<>();
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
         mUser.getIdToken(true)
                 .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                     public void onComplete(@NonNull Task<GetTokenResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d("gooff", "task successful");
+                            //Adds some data to "data"
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(getActivity()));
@@ -438,6 +447,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
+                            //Calls the "deleteJoke" function
                             FirebaseFunctions functions = FirebaseFunctions.getInstance();
                             functions.useEmulator("10.0.2.2.", 5001);
                             // FirebaseFunctions.getInstance()
@@ -447,14 +457,10 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
                                         @Override
                                         public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                                            //HashMap result = (HashMap) task.getResult().getData();
-                                            //JSONObject res = new JSONObject(result);
+                                            //Changes the check mark back to a download icon
                                             downloadButton.setBackgroundResource(R.drawable.downloadicon);
+                                            //Marks that the joke isn't saved anymore
                                             jokeSaved = false;
-                                            /*Intent intent = new Intent("UPDATEJOKE");
-                                            intent.putExtra("instruction","delete");
-                                            intent.putExtra("id", jokeJSON.getString("id"));
-                                            getContext().sendBroadcast(intent);*/
                                             return null;
                                         }
                                     });
@@ -464,17 +470,16 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                     }
                 });
     }
-
+    //Builds a custom dialog
     public void ConfirmToUnSave(Context context) {
+        //Creates the builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        //builder.setTitle(R.string.app_name);
+        //Adds text and buttons
         builder.setMessage("Do you want to unsave this joke?");
-        //builder.setIcon(R.drawable.ic_launcher);
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            //Deletes joke when this button is pressed
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
-                Log.d("gooff", "pre delete");
                 try {
                     deleteJoke();
                 } catch (JSONException e) {
@@ -484,24 +489,27 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            //When this button is pressed,the dialog is dismissed
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
             }
         });
+        //Shows the dialog
         AlertDialog alert = builder.create();
         alert.show();
     }
 
+    //Checks if the joke is saved in firebase
     public void checkIfJokeSavedFirebase() throws JSONException {
         List<CheckIfJokeSavedTask> tasks = new ArrayList<>();
         tasks.add(new CheckIfJokeSavedTask(false, jsonObject.getInt("id")));
-        Log.d("somethingbrokedebug", "pre Observable");
         Observable<CheckIfJokeSavedTask> taskObservable = Observable
                 .fromIterable(tasks)
                 .subscribeOn(Schedulers.io())
                 .filter(new Predicate<CheckIfJokeSavedTask>() {
                     @Override
                     public boolean test(CheckIfJokeSavedTask jokeSavedTask) throws Throwable {
+                        //Updates jokeSaved to be whatever is returned
                         jokeSaved = jokeSavedTask.checkIfStored();
                         return true;
                     }
@@ -510,7 +518,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         taskObservable.subscribe(new Observer<CheckIfJokeSavedTask>() {
             @Override
             public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                Log.d("TAG", "on subscribe called");
+                //Adds the current disposable to a list,which is later destroyed
                 disposables.add(d);
             }
 
@@ -521,12 +529,11 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Log.d("TAG", "onError: " + e);
             }
 
+            //Once the task is completed,changes the download button to either a download button or check
             @Override
             public void onComplete() {
-                Log.d("checkerdebug", "value of jokeSaved:" + jokeSaved);
                 if (jokeSaved) {
                     downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
                 } else {
@@ -536,22 +543,23 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         });
     }
 
+    //Checks if the jokes is saved in sharedpreferences,and sets the download button icon accordingly
     public void checkIfJokeSaved() throws JSONException {
         if (StoreJokesLocally.checkIfJokeSaved(jsonObject.getString("id"), getActivity())) {
-            Log.d("finalsprint", "check");
             jokeSaved = true;
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.checkred));
         } else {
-            Log.d("finalsprint", "download2");
             downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
         }
     }
 
+    //Gets called whenever there are new jokes
     public class GetJokeUpdates extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //String message = intent.getExtras().getString("message");
+            //Gets the isntruction
             String instruction = intent.getExtras().getString("instruction");
+            //Depending on the instruction,it does different things
             if (instruction.equals("delete")) {
                 jokeSaved = false;
                 downloadButton.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.downloadicon));
@@ -562,6 +570,7 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
         }
     }
 
+    //Sets the width of a view in inches,used to set certain views in a specific position regardless of screen size
     public void setViewWidthInInches(double inches, View v) {
         DisplayMetrics metrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);

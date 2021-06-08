@@ -17,19 +17,25 @@ import androidx.appcompat.app.AppCompatDialogFragment;
 import org.json.JSONException;
 
 public class GroupDialog extends AppCompatDialogFragment {
+    //Creates some variables
     DialogInterface listener;
     EditText groupNameEditText;
     Button cancelButton;
     Button okButton;
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        //Creates a dialog builder
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //Creates a view
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_group_dialog,null);
+        //Sets the view for the builder
         builder.setView(view);
+        //Intiializes some views
         groupNameEditText = view.findViewById(R.id.ediTextGroupName);
         cancelButton = view.findViewById(R.id.cancelButton);
         okButton = view.findViewById(R.id.okButton);
+        //Sets a listener for the cancel button
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

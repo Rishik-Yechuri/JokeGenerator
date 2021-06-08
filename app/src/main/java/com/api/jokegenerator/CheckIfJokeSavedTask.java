@@ -20,11 +20,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CheckIfJokeSavedTask {
+    //Stores variables
     private boolean isComplete;
     private boolean isStored;
     private int jokeID;
     final String commonObject = "taskobject";
 
+    //Initializes variables
     public CheckIfJokeSavedTask(boolean isComplete, int jokeID) {
         this.isComplete = isComplete;
         this.jokeID = jokeID;
