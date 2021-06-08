@@ -40,7 +40,7 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2", 9099);
+        //mAuth.useEmulator("10.0.2.2", 9099);
         //Initializes views and sets onclicklisteners
         logInView = findViewById(R.id.logInView);
         logInView.setOnClickListener(new LogInClicked());

@@ -180,6 +180,7 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
             });
             //Modify the colors,and show the undo snack
             undoAction.setActionTextColor(Color.rgb(255, 200, 35));
+            undoAction.setTextColor(Color.parseColor("#FFFFFF"));
             undoAction.show();
         }
 
@@ -207,10 +208,10 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
                             data.put("groupName", name);
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("removeGroup")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -256,10 +257,10 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
                             data.put("groupName", name);
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("addGroup")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -281,10 +282,10 @@ public class GroupsFrag extends Fragment implements GroupDialog.DialogInterface 
                             data2.put("token", idToken[0]);
                             data2.put("groupName", name);
                             data2.put("id", String.valueOf(savedIds));
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                           /* FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("addJokeToGroup")
                                     .call(data2)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

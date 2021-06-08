@@ -61,10 +61,10 @@ public class CheckIfJokeSavedTask {
                             data.put("token", idToken[0]);
                             data.put("jokeid", jokeID);
                             //Call the firebase function "checkIfJokeSaved"
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                           /* FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("checkIfJokeSaved")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

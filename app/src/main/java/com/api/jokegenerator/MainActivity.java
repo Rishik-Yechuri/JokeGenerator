@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         editTextPasswordLogIn = findViewById(R.id.editTextPasswordLogIn);
         //Initializes mAuth
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2", 9099);
+        //mAuth.useEmulator("10.0.2.2", 9099);
         groupsUpdated = new GroupsUpdated(getApplicationContext());
     }
 
@@ -151,10 +151,10 @@ public class MainActivity extends AppCompatActivity {
                             //Adds data to send
                             data.put("token", idToken[0]);
                             //Calls "getSavedJokes"
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            // FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                             FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("getSavedJokes")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -195,10 +195,10 @@ public class MainActivity extends AppCompatActivity {
                             data.put("token", idToken[0]);
                             data.put("id", String.valueOf(jokeID));
                             //Calls "returnJoke" firebase function
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("returnJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -236,11 +236,11 @@ public class MainActivity extends AppCompatActivity {
                             //Adds data to send to Firebase
                             idToken[0] = task.getResult().getToken();
                             data.put("token", idToken[0]);
-                            //Calls "returnJoke" firebase function
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            //Calls "returnSavedGroups" firebase function
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("returnSavedGroups")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

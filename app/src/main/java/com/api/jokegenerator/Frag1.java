@@ -448,10 +448,10 @@ public class Frag1 extends Fragment implements PopupMenu.OnMenuItemClickListener
                                 e.printStackTrace();
                             }
                             //Calls the "deleteJoke" function
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            // FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                             FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("deleteJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

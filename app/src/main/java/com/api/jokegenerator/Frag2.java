@@ -398,10 +398,10 @@ public class Frag2 extends Fragment {
                             data.put("fcmtoken", MyFirebaseMessagingService.getToken(context));
                             data.put("jokeid", id);
                             //Calls "deleteJoke"
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("deleteJoke")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

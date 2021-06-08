@@ -72,10 +72,10 @@ public class GroupsUpdated {
                             data.put("token", idToken[0]);
                             data.put("id", id);
                             data.put("groupName", groupName);
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("addJokeToGroup")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
@@ -103,10 +103,10 @@ public class GroupsUpdated {
                             data.put("token", idToken[0]);
                             data.put("id", id);
                             data.put("groupName", groupName);
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                            /*FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("removeJokeFromGroup")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {

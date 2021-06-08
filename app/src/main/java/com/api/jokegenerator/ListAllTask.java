@@ -79,10 +79,10 @@ public class ListAllTask {
                                 e.printStackTrace();
                             }
                             //Calls "saveJokeID" Firebase function
-                            FirebaseFunctions functions = FirebaseFunctions.getInstance();
-                            functions.useEmulator("10.0.2.2.", 5001);
-                            //FirebaseFunctions.getInstance()
-                            functions
+                           /* FirebaseFunctions functions = FirebaseFunctions.getInstance();
+                            functions.useEmulator("10.0.2.2.", 5001);*/
+                            FirebaseFunctions.getInstance()
+                            //functions
                                     .getHttpsCallable("saveJokeID")
                                     .call(data)
                                     .continueWith(new Continuation<HttpsCallableResult, String>() {
